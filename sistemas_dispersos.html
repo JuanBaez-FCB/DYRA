@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistemas Dispersos en Alimentos — FCB-UANL</title>
+<style>
+  :root {
+    --navy: #1E3A5F;
+    --navy-light: #2A4F7A;
+    --gold: #C9A227;
+    --gold-light: #D4B44A;
+    --cream: #F7F6F2;
+    --cream-dark: #EBE9E2;
+    --text: #2C2C2C;
+    --text-light: #5A5A5A;
+    --success: #2E7D32;
+    --error: #C62828;
+    --white: #FFFFFF;
+    --shadow: 0 2px 8px rgba(30,58,95,0.12);
+    --radius: 8px;
+    /* SVG phase colors */
+    --svg-dispersa: #D4963A;
+    --svg-dispersa-light: rgba(212,150,58,0.35);
+    --svg-continua: #A8C4DA;
+    --svg-continua-dark: #7BA3C1;
+    --svg-network: #1E3A5F;
+    --svg-gas: #E8EEF3;
+    --svg-solid-matrix: #C2B280;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: Calibri, 'Segoe UI', sans-serif; color: var(--text); background: var(--cream); line-height: 1.6; }
+  h1, h2, h3, h4 { font-family: Cambria, Georgia, serif; color: var(--navy); }
+
+  .site-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: var(--white); padding: 2rem 1.5rem; text-align: center;
+  }
+  .site-header h1 { color: var(--white); font-size: clamp(1.4rem, 4vw, 2.2rem); margin-bottom: 0.3rem; }
+  .site-header .subtitle { color: var(--gold); font-family: Calibri, sans-serif; font-size: clamp(0.85rem, 2.5vw, 1.1rem); font-weight: 600; }
+  .site-header .course-tag {
+    display: inline-block; margin-top: 0.8rem;
+    background: rgba(201,162,39,0.2); border: 1px solid var(--gold);
+    color: var(--gold-light); padding: 0.25rem 0.9rem; border-radius: 20px; font-size: 0.8rem;
+  }
+
+  .section-nav {
+    background: var(--white); border-bottom: 2px solid var(--gold);
+    padding: 0.6rem 1rem; display: flex; gap: 0.3rem; flex-wrap: wrap;
+    justify-content: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
+  }
+  .section-nav a {
+    text-decoration: none; font-size: 0.85rem; padding: 0.35rem 0.8rem;
+    border-radius: 4px; color: var(--navy); font-weight: 600; transition: background 0.2s;
+  }
+  .section-nav a:hover { background: var(--cream); }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+  .section { padding: 2.5rem 0; }
+  .section + .section { border-top: 1px solid var(--cream-dark); }
+  .section-title { font-size: 1.45rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; }
+  .section-title .dot { width: 10px; height: 10px; background: var(--gold); border-radius: 50%; flex-shrink: 0; }
+  .section-intro { color: var(--text-light); margin-bottom: 1.5rem; max-width: 700px; font-size: 0.95rem; }
+
+  .concept-box {
+    background: var(--white); border-left: 4px solid var(--gold);
+    padding: 1.2rem 1.5rem; border-radius: 0 var(--radius) var(--radius) 0;
+    margin-bottom: 1rem; box-shadow: var(--shadow);
+  }
+  .concept-box h3 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+  .term { color: var(--gold); font-weight: 700; }
+
+  .class-table {
+    width: 100%; border-collapse: collapse; font-size: 0.88rem;
+    background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+  }
+  .class-table th { background: var(--navy); color: var(--white); padding: 0.7rem 0.8rem; text-align: left; font-family: Cambria, serif; }
+  .class-table td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--cream-dark); }
+  .class-table tr:last-child td { border-bottom: none; }
+  .class-table tr:nth-child(even) td { background: var(--cream); }
+
+  /* SVG legend */
+  .svg-legend {
+    display: flex; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1.2rem;
+    font-size: 0.82rem; color: var(--text-light);
+  }
+  .svg-legend-item { display: flex; align-items: center; gap: 0.35rem; }
+  .svg-legend-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.15); }
+
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
+  .card {
+    background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
+    overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; position: relative;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(30,58,95,0.18); }
+  .card-visual {
+    height: 150px; display: flex; align-items: center; justify-content: center;
+    position: relative; background: #F0F4F8; border-bottom: 1px solid var(--cream-dark);
+  }
+  .card-visual svg { width: 100%; height: 100%; }
+  .card-body { padding: 1rem 1.1rem; }
+  .card-body h4 { font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .card-body p { font-size: 0.83rem; color: var(--text-light); }
+  .badge {
+    position: absolute; top: 8px; right: 8px; background: var(--navy); color: var(--white);
+    font-size: 0.68rem; padding: 0.12rem 0.45rem; border-radius: 10px; font-weight: 600; z-index: 3;
+  }
+  .phase-labels { margin-top: 0.4rem; display: flex; gap: 0.3rem; flex-wrap: wrap; }
+  .phase-label { font-size: 0.72rem; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 600; }
+  .phase-label.dispersa { background: #FFF3E0; color: #BF6C10; }
+  .phase-label.continua { background: #E3F2FD; color: #1565C0; }
+
+  .card-reveal {
+    display: none; position: absolute; inset: 0; background: rgba(30,58,95,0.94);
+    color: var(--white); padding: 1.2rem; font-size: 0.83rem; line-height: 1.5;
+    flex-direction: column; justify-content: center; z-index: 4;
+  }
+  .card-reveal h4 { color: var(--gold); margin-bottom: 0.3rem; font-size: 0.92rem; }
+  .card.revealed .card-reveal { display: flex; }
+  .card-reveal .close-btn {
+    position: absolute; top: 6px; right: 8px; background: none; border: none;
+    color: var(--gold); font-size: 1.3rem; cursor: pointer;
+  }
+
+  .exercise-area {
+    background: var(--white); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);
+  }
+  .exercise-area h3 { font-size: 1.05rem; margin-bottom: 0.7rem; }
+  .drag-bank {
+    display: flex; flex-wrap: wrap; gap: 0.45rem; min-height: 44px; padding: 0.7rem;
+    background: var(--cream); border-radius: var(--radius); margin-bottom: 1rem; border: 2px dashed var(--cream-dark);
+  }
+  .drag-item {
+    background: var(--navy); color: var(--white); padding: 0.35rem 0.7rem; border-radius: 6px;
+    font-size: 0.8rem; cursor: grab; user-select: none; font-weight: 600; transition: transform 0.15s, opacity 0.15s;
+  }
+  .drag-item:active { cursor: grabbing; transform: scale(1.05); }
+  .drag-item.correct { background: var(--success); }
+  .drag-item.incorrect { background: var(--error); animation: shake 0.4s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+  .drop-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6rem; margin-bottom: 0.5rem; align-items: center; }
+  .drop-row .food-name { font-weight: 700; font-size: 0.88rem; color: var(--navy); }
+  .drop-zone {
+    min-height: 36px; border: 2px dashed var(--cream-dark); border-radius: 6px; padding: 0.25rem;
+    display: flex; align-items: center; justify-content: center; font-size: 0.76rem; color: var(--text-light);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .drop-zone.over { border-color: var(--gold); background: rgba(201,162,39,0.08); }
+  .drop-zone.filled { border-style: solid; border-color: var(--success); background: #E8F5E9; color: var(--success); font-weight: 600; }
+  .drop-headers {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6rem; margin-bottom: 0.4rem;
+    font-size: 0.78rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.04em;
+  }
+
+  .quiz-question {
+    background: var(--white); border-radius: var(--radius); padding: 1.1rem 1.3rem;
+    margin-bottom: 0.8rem; box-shadow: var(--shadow); border-left: 4px solid var(--navy);
+  }
+  .quiz-question.answered-correct { border-left-color: var(--success); }
+  .quiz-question.answered-incorrect { border-left-color: var(--error); }
+  .quiz-question p.q-text { font-weight: 600; margin-bottom: 0.6rem; font-size: 0.9rem; }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.35rem; }
+  .quiz-opt {
+    display: block; width: 100%; text-align: left; background: var(--cream); border: 2px solid transparent;
+    padding: 0.5rem 0.9rem; border-radius: 6px; font-size: 0.84rem; cursor: pointer;
+    transition: border-color 0.2s; font-family: inherit; color: var(--text);
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--navy-light); }
+  .quiz-opt:disabled { cursor: default; opacity: 0.85; }
+  .quiz-opt.selected-correct { border-color: var(--success); background: #E8F5E9; }
+  .quiz-opt.selected-incorrect { border-color: var(--error); background: #FFEBEE; }
+  .quiz-opt.show-correct { border-color: var(--success); background: #E8F5E9; }
+  .quiz-feedback { margin-top: 0.5rem; font-size: 0.82rem; padding: 0.45rem 0.7rem; border-radius: 4px; display: none; }
+  .quiz-feedback.visible { display: block; }
+  .quiz-feedback.correct { background: #E8F5E9; color: var(--success); }
+  .quiz-feedback.incorrect { background: #FFEBEE; color: var(--error); }
+
+  .score-bar {
+    background: var(--white); border-radius: var(--radius); padding: 1rem 1.5rem; box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; flex-wrap: wrap; gap: 0.8rem;
+  }
+  .score-text { font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+  .btn {
+    border: none; padding: 0.5rem 1.2rem; border-radius: 6px; cursor: pointer;
+    font-weight: 600; font-size: 0.85rem; font-family: inherit; transition: background 0.2s;
+  }
+  .btn-navy { background: var(--navy); color: var(--white); }
+  .btn-navy:hover { background: var(--navy-light); }
+  .btn-gold { background: var(--gold); color: var(--navy); }
+  .btn-gold:hover { background: var(--gold-light); }
+
+  .site-footer {
+    background: var(--navy); color: rgba(255,255,255,0.7); text-align: center;
+    padding: 1.5rem; font-size: 0.82rem; margin-top: 2rem;
+  }
+  .site-footer strong { color: var(--gold); }
+
+  @media (max-width: 600px) {
+    .drop-row { grid-template-columns: 1fr; gap: 0.3rem; }
+    .drop-headers { display: none; }
+    .drop-zone::before { font-size: 0.7rem; margin-right: 0.3rem; font-weight: 700; color: var(--navy); }
+    .drop-zone[data-role="dispersa"]::before { content: "Dispersa: "; }
+    .drop-zone[data-role="continua"]::before { content: "Continua: "; }
+    .cards-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>Sistemas Dispersos en Alimentos</h1>
+  <div class="subtitle">Dispersiones y Reolog&#237;a de Alimentos &middot; Fase 1</div>
+  <span class="course-tag">LCA 430 &middot; 5.&#186; semestre &middot; Ciencia de Alimentos</span>
+</header>
+
+<nav class="section-nav">
+  <a href="#conceptos">Conceptos</a>
+  <a href="#clasificacion">Clasificaci&#243;n</a>
+  <a href="#ejemplos">Ejemplos</a>
+  <a href="#ejercicio">Ejercicio</a>
+  <a href="#cuestionario">Cuestionario</a>
+</nav>
+
+<div class="container">
+
+<section class="section" id="conceptos">
+  <h2 class="section-title"><span class="dot"></span> &#191;Qu&#233; es un sistema disperso?</h2>
+  <p class="section-intro">Un <strong>sistema disperso</strong> (<em>disperse system</em>) es una mezcla de al menos dos fases inmiscibles: una fase finamente dividida distribuida en otra fase que la rodea. La mayor&#237;a de los alimentos son sistemas dispersos.</p>
+  <div class="concept-box">
+    <h3>Dos componentes clave</h3>
+    <p><span class="term">Fase dispersa</span> (<em>dispersed phase</em>) &mdash; la fase fragmentada en peque&#241;as part&#237;culas, gotas o burbujas.</p>
+    <p style="margin-top:0.3rem"><span class="term">Fase continua</span> (<em>continuous phase</em>) &mdash; la fase que rodea y sostiene a la fase dispersa; forma la &ldquo;matriz&rdquo; del sistema.</p>
+  </div>
+  <div class="concept-box">
+    <h3>&#191;Por qu&#233; importa en alimentos?</h3>
+    <p>Las propiedades sensoriales (textura, apariencia, sabor), la estabilidad durante el almacenamiento y la funcionalidad de un alimento dependen del tipo de fase dispersa y continua, as&#237; como del tama&#241;o y distribuci&#243;n de las part&#237;culas. Factores como el <strong>pH</strong>, la <strong>fuerza i&#243;nica</strong>, la <strong>tensi&#243;n interfacial</strong> (<em>interfacial tension</em>) y la presencia de <strong>emulsificantes</strong> o <strong>agentes gelificantes</strong> determinan la estabilidad del sistema.</p>
+  </div>
+  <div class="concept-box">
+    <h3>Tama&#241;o de part&#237;cula y clasificaci&#243;n</h3>
+    <p>Seg&#250;n el tama&#241;o de la fase dispersa: <strong>dispersiones moleculares</strong> (&lt; 1 nm, soluciones verdaderas), <strong>dispersiones coloidales</strong> (1 nm &ndash; 1 &#181;m) y <strong>dispersiones gruesas</strong> (&gt; 1 &#181;m, suspensiones y emulsiones visibles). Los alimentos suelen contener part&#237;culas en el rango coloidal y grueso simult&#225;neamente.</p>
+  </div>
+</section>
+
+<section class="section" id="clasificacion">
+  <h2 class="section-title"><span class="dot"></span> Clasificaci&#243;n de sistemas dispersos</h2>
+  <p class="section-intro">Se clasifican seg&#250;n el estado f&#237;sico (s&#243;lido, l&#237;quido o gas) de cada fase.</p>
+  <table class="class-table">
+    <thead><tr><th>Tipo</th><th>Fase dispersa</th><th>Fase continua</th><th>Ejemplo alimentario</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Emulsi&#243;n l&#237;quida</strong></td><td>L&#237;quido</td><td>L&#237;quido</td><td>Leche, mayonesa, crema</td></tr>
+      <tr><td><strong>Emulsi&#243;n s&#243;lida</strong></td><td>L&#237;quido</td><td>S&#243;lido</td><td>Margarina, mantequilla, chocolate</td></tr>
+      <tr><td><strong>Espuma l&#237;quida</strong></td><td>Gas</td><td>L&#237;quido</td><td>Merengue batido, espuma de cerveza</td></tr>
+      <tr><td><strong>Espuma s&#243;lida</strong></td><td>Gas</td><td>S&#243;lido</td><td>Miga de pan, helado, malvavisco</td></tr>
+      <tr><td><strong>Gel</strong></td><td>L&#237;quido</td><td>S&#243;lido (red 3D)</td><td>Gelatina, gomitas, huevo cocido</td></tr>
+      <tr><td><strong>Sol</strong></td><td>S&#243;lido</td><td>L&#237;quido</td><td>Chocolate caliente, jugo turbio</td></tr>
+      <tr><td><strong>Aerosol l&#237;quido</strong></td><td>L&#237;quido</td><td>Gas</td><td>Aceite en spray</td></tr>
+      <tr><td><strong>Aerosol s&#243;lido</strong></td><td>S&#243;lido</td><td>Gas</td><td>Humo de ahumado</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:0.78rem; color:var(--text-light); margin-top:0.5rem;">Ref.: McClements, D.J. (2016). <em>Food Emulsions</em>, 3.&#170; ed., Cap. 1.</p>
+</section>
+
+<section class="section" id="ejemplos">
+  <h2 class="section-title"><span class="dot"></span> Ejemplos en alimentos reales</h2>
+  <p class="section-intro">Haz clic en cada tarjeta para ver la descripci&#243;n detallada. Los diagramas muestran un corte transversal esquem&#225;tico del sistema disperso.</p>
+
+  <div class="svg-legend">
+    <div class="svg-legend-item"><span class="svg-legend-swatch" style="background:#D4963A"></span> Fase dispersa</div>
+    <div class="svg-legend-item"><span class="svg-legend-swatch" style="background:#A8C4DA"></span> Fase continua (l&#237;quida)</div>
+    <div class="svg-legend-item"><span class="svg-legend-swatch" style="background:#C2B280"></span> Fase continua (s&#243;lida/grasa)</div>
+    <div class="svg-legend-item"><span class="svg-legend-swatch" style="background:#E8EEF3"></span> Gas / aire</div>
+    <div class="svg-legend-item"><span class="svg-legend-swatch" style="background:#1E3A5F"></span> Red polim&#233;rica (gel)</div>
+  </div>
+
+  <div class="cards-grid" id="cardsGrid"></div>
+</section>
+
+<section class="section" id="ejercicio">
+  <h2 class="section-title"><span class="dot"></span> Ejercicio: Identifica las fases</h2>
+  <p class="section-intro">Arrastra cada componente desde el banco hacia la casilla correcta (fase dispersa o fase continua) del alimento correspondiente.</p>
+  <div class="exercise-area">
+    <h3>Banco de componentes</h3>
+    <div class="drag-bank" id="dragBank"></div>
+    <div class="drop-headers"><span>Alimento</span><span>Fase dispersa</span><span>Fase continua</span></div>
+    <div id="dropRows"></div>
+    <div style="margin-top:1rem; display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
+      <button class="btn btn-gold" onclick="resetExercise()">Reiniciar ejercicio</button>
+      <span id="exerciseScore" style="font-size:0.88rem; color:var(--navy); font-weight:600;"></span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="cuestionario">
+  <h2 class="section-title"><span class="dot"></span> Cuestionario de autoevaluaci&#243;n</h2>
+  <p class="section-intro">Selecciona la opci&#243;n correcta. Recibir&#225;s retroalimentaci&#243;n inmediata.</p>
+  <div id="quizContainer"></div>
+  <div class="score-bar" id="scoreBar" style="display:none;">
+    <span class="score-text" id="scoreText"></span>
+    <button class="btn btn-navy" onclick="resetQuiz()">Reiniciar cuestionario</button>
+  </div>
+</section>
+
+</div>
+
+<footer class="site-footer">
+  <strong>Dr. Juan Gabriel B&#225;ez Gonz&#225;lez</strong><br>
+  Facultad de Ciencias Biol&#243;gicas &middot; Universidad Aut&#243;noma de Nuevo Le&#243;n<br>
+  Dispersiones y Reolog&#237;a de Alimentos &mdash; LCA 430 &middot; Fase 1<br>
+  <span style="opacity:0.5; font-size:0.72rem;">Material did&#225;ctico &middot; Uso educativo</span>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   SVG DIAGRAM GENERATORS
+   Each returns an SVG string for the card visual.
+   Colors: dispersa=#D4963A, continua-liq=#A8C4DA,
+   continua-solid=#C2B280, gas=#E8EEF3, network=#1E3A5F
+   ═══════════════════════════════════════════ */
+
+function svgEmulsionOW(opts) {
+  // Oil droplets (dispersa) in water (continua)
+  const drops = opts.drops || [
+    {cx:55,cy:48,r:18},{cx:130,cy:35,r:14},{cx:105,cy:78,r:20},{cx:190,cy:55,r:16},
+    {cx:170,cy:95,r:12},{cx:60,cy:100,r:15},{cx:240,cy:42,r:13},{cx:230,cy:90,r:17},
+    {cx:145,cy:115,r:11},{cx:38,cy:70,r:10},{cx:95,cy:30,r:9},{cx:210,cy:110,r:10},
+    {cx:270,cy:70,r:14},{cx:160,cy:48,r:8}
+  ];
+  const emulsifier = opts.emulsifier !== false;
+  let d = drops.map(o => {
+    let c = `<circle cx="${o.cx}" cy="${o.cy}" r="${o.r}" fill="#D4963A" opacity="0.85"/>`;
+    if (emulsifier) {
+      // small ticks around droplet = emulsifier layer
+      for (let a = 0; a < 360; a += 40) {
+        const rad = a * Math.PI / 180;
+        const x1 = o.cx + o.r * Math.cos(rad), y1 = o.cy + o.r * Math.sin(rad);
+        const x2 = o.cx + (o.r + 4) * Math.cos(rad), y2 = o.cy + (o.r + 4) * Math.sin(rad);
+        c += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#1E3A5F" stroke-width="1.2" opacity="0.4"/>`;
+      }
+    }
+    return c;
+  }).join('');
+  return `<svg viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+    <rect width="300" height="140" fill="#A8C4DA" rx="0"/>
+    ${d}
+    <text x="150" y="136" text-anchor="middle" font-size="8" fill="#1E3A5F" font-family="Calibri,sans-serif" opacity="0.6">${opts.label||'O/W'}</text>
+  </svg>`;
+}
+
+function svgEmulsionWO(opts) {
+  // Water droplets (dispersa) in solid fat matrix (continua)
+  const drops = [
+    {cx:50,cy:40,r:12},{cx:120,cy:30,r:10},{cx:90,cy:80,r:14},{cx:180,cy:50,r:11},
+    {cx:160,cy:95,r:9},{cx:55,cy:105,r:11},{cx:230,cy:40,r:13},{cx:220,cy:85,r:10},
+    {cx:140,cy:60,r:8},{cx:260,cy:65,r:11},{cx:35,cy:72,r:7},{cx:200,cy:110,r:8}
+  ];
+  // Crystal hatching lines in fat matrix
+  let crystals = '';
+  const cLines = [
+    [10,20,70,15],[80,10,140,18],[150,5,210,12],[220,8,280,16],
+    [20,55,65,48],[130,45,185,52],[200,38,260,45],
+    [15,90,60,85],[85,100,150,92],[170,88,230,95],[240,100,290,93],
+    [30,120,90,115],[100,125,180,118],[190,120,270,128]
+  ];
+  cLines.forEach(l => {
+    crystals += `<line x1="${l[0]}" y1="${l[1]}" x2="${l[2]}" y2="${l[3]}" stroke="#A89460" stroke-width="0.8" opacity="0.45"/>`;
+  });
+  let d = drops.map(o =>
+    `<circle cx="${o.cx}" cy="${o.cy}" r="${o.r}" fill="#A8C4DA" opacity="0.85" stroke="#7BA3C1" stroke-width="0.8"/>`
+  ).join('');
+  return `<svg viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+    <rect width="300" height="140" fill="#C2B280" rx="0"/>
+    ${crystals}${d}
+    <text x="150" y="136" text-anchor="middle" font-size="8" fill="#5A4A20" font-family="Calibri,sans-serif" opacity="0.6">${opts.label||'W/O s\u00f3lida'}</text>
+  </svg>`;
+}
+
+function svgChocolate() {
+  // Irregular particles (sugar, cocoa) in cocoa butter matrix
+  let particles = '';
+  const ps = [
+    {x:30,y:25,w:18,h:12},{x:80,y:15,w:14,h:10},{x:140,y:30,w:20,h:14},{x:200,y:20,w:16,h:11},
+    {x:250,y:35,w:13,h:15},{x:50,y:60,w:17,h:13},{x:110,y:55,w:22,h:12},{x:170,y:65,w:15,h:18},
+    {x:230,y:58,w:19,h:11},{x:40,y:95,w:14,h:16},{x:100,y:100,w:18,h:10},{x:160,y:90,w:12,h:14},
+    {x:220,y:98,w:20,h:13},{x:270,y:80,w:14,h:12},{x:70,y:120,w:16,h:8},{x:190,y:115,w:15,h:10}
+  ];
+  ps.forEach(p => {
+    particles += `<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="2" fill="#D4963A" opacity="0.8" transform="rotate(${Math.floor(Math.random()*30-15)} ${p.x+p.w/2} ${p.y+p.h/2})"/>`;
+  });
+  let crystals = '';
+  for (let i = 0; i < 12; i++) {
+    const y = 8 + i * 12;
+    crystals += `<line x1="${5+i*3}" y1="${y}" x2="${60+i*18}" y2="${y+3}" stroke="#3D2410" stroke-width="0.6" opacity="0.3"/>`;
+  }
+  return `<svg viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+    <rect width="300" height="140" fill="#6B3E22" rx="0"/>
+    ${crystals}${particles}
+    <text x="150" y="136" text-anchor="middle" font-size="8" fill="#D4C090" font-family="Calibri,sans-serif" opacity="0.6">Suspensi\u00f3n en manteca de cacao</text>
+  </svg>`;
+}
+
+function svgFoamSolid(opts) {
+  // Gas cells (dispersa) in solid matrix (continua)
+  const cells = opts.cells || [
+    {cx:45,cy:35,rx:22,ry:18},{cx:120,cy:28,rx:28,ry:20},{cx:210,cy:32,rx:24,ry:22},
+    {cx:75,cy:75,rx:30,ry:24},{cx:165,cy:70,rx:26,ry:28},{cx:250,cy:65,rx:22,ry:20},
+    {cx:40,cy:110,rx:20,ry:16},{cx:115,cy:108,rx:28,ry:18},{cx:200,cy:105,rx:25,ry:22},
+    {cx:270,cy:100,rx:18,ry:16},{cx:155,cy:118,rx:15,ry:10}
+  ];
+  const matrixColor = opts.matrixColor || '#C2B280';
+  let d = cells.map(o =>
+    `<ellipse cx="${o.cx}" cy="${o.cy}" rx="${o.rx}" ry="${o.ry}" fill="#E8EEF3" stroke="#B0BEC5" stroke-width="1.2" opacity="0.9"/>`
+  ).join('');
+  return `<svg viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+    <rect width="300" height="140" fill="${matrixColor}" rx="0"/>
+    ${d}
+    <text x="150" y="136" text-anchor="middle" font-size="8" fill="#1E3A5F" font-family="Calibri,sans-serif" opacity="0.6">${opts.label||'Espuma s\u00f3lida'}</text>
+  </svg>`;
+}
+
+function svgGel(opts) {
+  // 3D network (continua) trapping liquid (dispersa)
+  const netColor = opts.netColor || '#1E3A5F';
+  const bgColor = opts.bgColor || '#D6E8F0';
+  // Generate a mesh-like network
+  let net = '';
+  // Horizontal wavy lines
+  for (let y = 15; y < 135; y += 22) {
+    let path = `M 0 ${y}`;
+    for (let x = 15; x <= 300; x += 15) {
+      const dy = (Math.sin(x * 0.08 + y * 0.1) * 6).toFixed(1);
+      path += ` L ${x} ${(y + parseFloat(dy)).toFixed(1)}`;
+    }
+    net += `<path d="${path}" fill="none" stroke="${netColor}" stroke-width="1.5" opacity="0.55"/>`;
+  }
+  // Vertical connecting strands
+  for (let x = 20; x < 290; x += 25) {
+    let path = `M ${x} 5`;
+    for (let y = 15; y <= 135; y += 10) {
+      const dx = (Math.cos(y * 0.12 + x * 0.05) * 5).toFixed(1);
+      path += ` L ${(x + parseFloat(dx)).toFixed(1)} ${y}`;
+    }
+    net += `<path d="${path}" fill="none" stroke="${netColor}" stroke-width="1.2" opacity="0.35"/>`;
+  }
+  // Junction nodes
+  let nodes = '';
+  for (let y = 15; y < 135; y += 22) {
+    for (let x = 20; x < 290; x += 25) {
+      if (Math.random() > 0.4) {
+        nodes += `<circle cx="${x + Math.random()*8-4}" cy="${y + Math.random()*6-3}" r="2.5" fill="${netColor}" opacity="0.5"/>`;
+      }
+    }
+  }
+  // Small water molecules scattered
+  let water = '';
+  for (let i = 0; i < 20; i++) {
+    const wx = 15 + Math.random() * 270, wy = 10 + Math.random() * 120;
+    water += `<circle cx="${wx.toFixed(0)}" cy="${wy.toFixed(0)}" r="3" fill="#D4963A" opacity="0.4"/>`;
+  }
+  return `<svg viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+    <rect width="300" height="140" fill="${bgColor}" rx="0"/>
+    ${water}${net}${nodes}
+    <text x="150" y="136" text-anchor="middle" font-size="8" fill="${netColor}" font-family="Calibri,sans-serif" opacity="0.6">${opts.label||'Gel'}</text>
+  </svg>`;
+}
+
+function svgAerosolLiquid() {
+  // Small oil droplets scattered in air
+  let drops = '';
+  const positions = [
+    {cx:40,cy:30,r:6},{cx:90,cy:50,r:4},{cx:60,cy:80,r:5},{cx:130,cy:25,r:7},
+    {cx:150,cy:65,r:3},{cx:180,cy:40,r:5},{cx:110,cy:90,r:4},{cx:200,cy:75,r:6},
+    {cx:230,cy:30,r:4},{cx:250,cy:60,r:5},{cx:220,cy:100,r:3},{cx:270,cy:45,r:4},
+    {cx:45,cy:115,r:3},{cx:160,cy:110,r:5},{cx:100,cy:115,r:4},{cx:75,cy:55,r:3},
+    {cx:210,cy:110,r:3},{cx:140,cy:95,r:4},{cx:30,cy:60,r:3},{cx:260,cy:90,r:4}
+  ];
+  positions.forEach(p => {
+    drops += `<circle cx="${p.cx}" cy="${p.cy}" r="${p.r}" fill="#D4963A" opacity="0.7"/>`;
+    // Tiny highlight
+    drops += `<circle cx="${p.cx-p.r*0.3}" cy="${p.cy-p.r*0.3}" r="${p.r*0.35}" fill="white" opacity="0.4"/>`;
+  });
+  // Arrow suggesting spray direction
+  return `<svg viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+    <rect width="300" height="140" fill="#E8EEF3" rx="0"/>
+    <defs><linearGradient id="airg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E8EEF3"/><stop offset="100%" stop-color="#D5DEE7"/></linearGradient></defs>
+    <rect width="300" height="140" fill="url(#airg)"/>
+    ${drops}
+    <text x="150" y="136" text-anchor="middle" font-size="8" fill="#1E3A5F" font-family="Calibri,sans-serif" opacity="0.6">Aerosol l\u00edquido</text>
+  </svg>`;
+}
+
+function svgAerosolSolid() {
+  // Irregular solid particles in air
+  let parts = '';
+  const ps = [
+    {x:35,y:25},{x:80,y:45},{x:55,y:75},{x:125,y:20},{x:145,y:60},{x:175,y:35},
+    {x:105,y:85},{x:195,y:70},{x:225,y:25},{x:245,y:55},{x:215,y:95},{x:265,y:40},
+    {x:40,y:110},{x:155,y:105},{x:95,y:110},{x:70,y:50},{x:205,y:105},{x:135,y:90},
+    {x:25,y:55},{x:255,y:85},{x:170,y:100},{x:115,y:40},{x:180,y:112},{x:60,y:100}
+  ];
+  ps.forEach(p => {
+    const s = 3 + Math.random() * 5;
+    const pts = [];
+    for (let a = 0; a < 360; a += 60) {
+      const r = s * (0.6 + Math.random() * 0.6);
+      const rad = a * Math.PI / 180;
+      pts.push(`${(p.x + r * Math.cos(rad)).toFixed(1)},${(p.y + r * Math.sin(rad)).toFixed(1)}`);
+    }
+    parts += `<polygon points="${pts.join(' ')}" fill="#555" opacity="0.6"/>`;
+  });
+  return `<svg viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+    <rect width="300" height="140" fill="#E8EEF3" rx="0"/>
+    ${parts}
+    <text x="150" y="136" text-anchor="middle" font-size="8" fill="#1E3A5F" font-family="Calibri,sans-serif" opacity="0.6">Aerosol s\u00f3lido</text>
+  </svg>`;
+}
+
+/* ═══ EXAMPLE DATA ═══ */
+const examples = [
+  { name:"Mayonesa", type:"Emulsi\u00f3n l\u00edquida O/W", badge:"Emulsi\u00f3n", dispersa:"Gotas de aceite", continua:"Agua (vinagre/lim\u00f3n)",
+    detail:"Emulsi\u00f3n aceite-en-agua (O/W) estabilizada por lecitina del huevo. Gotas de aceite (\u22481\u201310 \u00b5m) dispersas en fase acuosa. La lecitina reduce la tensi\u00f3n interfacial y forma una pel\u00edcula protectora alrededor de cada gota.",
+    ref:"McClements (2016), <em>Food Emulsions</em>, 3.\u00aa ed., pp. 1\u20132 (\u00a71.1, \u00a71.2.1).",
+    svg: () => svgEmulsionOW({label:'Mayonesa \u2014 O/W'}) },
+  { name:"Leche", type:"Emulsi\u00f3n l\u00edquida O/W", badge:"Emulsi\u00f3n", dispersa:"Gl\u00f3bulos de grasa", continua:"Suero l\u00e1cteo (agua)",
+    detail:"Emulsi\u00f3n natural O/W con gl\u00f3bulos de grasa (0.1\u201315 \u00b5m) dispersos en suero. Tambi\u00e9n contiene micelas de case\u00edna (suspensi\u00f3n coloidal), lo que la convierte en un sistema disperso complejo con m\u00faltiples fases.",
+    ref:"McClements (2016), <em>Food Emulsions</em>, 3.\u00aa ed., pp. 1\u20132 (\u00a71.1, \u00a71.2.1).",
+    svg: () => svgEmulsionOW({label:'Leche \u2014 O/W', drops:[
+      {cx:60,cy:45,r:15},{cx:130,cy:30,r:10},{cx:100,cy:80,r:18},{cx:185,cy:50,r:12},
+      {cx:165,cy:90,r:8},{cx:55,cy:100,r:12},{cx:235,cy:38,r:11},{cx:225,cy:85,r:14},
+      {cx:140,cy:110,r:7},{cx:40,cy:68,r:6},{cx:95,cy:25,r:5},{cx:210,cy:108,r:9},
+      {cx:268,cy:65,r:10},{cx:160,cy:45,r:5},{cx:270,cy:100,r:7}
+    ]}) },
+  { name:"Crema para batir", type:"Emulsi\u00f3n l\u00edquida O/W", badge:"Emulsi\u00f3n", dispersa:"Gl\u00f3bulos de grasa (30\u201340%)", continua:"Suero l\u00e1cteo",
+    detail:"Emulsi\u00f3n O/W con alto contenido graso. Al batirla, se incorpora aire y la grasa parcialmente cristalizada estabiliza las burbujas, transform\u00e1ndola de emulsi\u00f3n a espuma.",
+    ref:"McClements (2016), <em>Food Emulsions</em>, 3.\u00aa ed., pp. 1\u20132, 19 (\u00a71.1, \u00a71.2.1, \u00a71.3.5).",
+    svg: () => svgEmulsionOW({label:'Crema \u2014 O/W (alta grasa)', drops:[
+      {cx:40,cy:30,r:20},{cx:110,cy:25,r:18},{cx:80,cy:70,r:22},{cx:170,cy:40,r:19},
+      {cx:150,cy:85,r:17},{cx:45,cy:105,r:16},{cx:230,cy:35,r:21},{cx:215,cy:80,r:18},
+      {cx:135,cy:115,r:13},{cx:265,cy:60,r:16},{cx:260,cy:105,r:14},{cx:190,cy:110,r:12}
+    ]}) },
+  { name:"Margarina", type:"Emulsi\u00f3n s\u00f3lida W/O", badge:"Em. s\u00f3lida", dispersa:"Gotas de agua", continua:"Grasa cristalizada",
+    detail:"Emulsi\u00f3n agua-en-aceite (W/O): gotas de fase acuosa atrapadas en red de cristales de grasa. Los emulsificantes (mono- y diglic\u00e9ridos) estabilizan las gotas de agua. La fase continua grasa da consistencia untable.",
+    ref:"McClements (2016), <em>Food Emulsions</em>, 3.\u00aa ed., pp. 2, 19 (\u00a71.2.1, \u00a71.3.5 nota al pie).",
+    svg: () => svgEmulsionWO({label:'Margarina \u2014 W/O s\u00f3lida'}) },
+  { name:"Chocolate", type:"Suspensi\u00f3n / Emulsi\u00f3n s\u00f3lida", badge:"Em. s\u00f3lida", dispersa:"Part\u00edculas de az\u00facar y cacao", continua:"Manteca de cacao cristalizada",
+    detail:"Part\u00edculas s\u00f3lidas de az\u00facar y cacao dispersas en manteca de cacao cristalizada. Lecitina de soya como dispersante. El temperado controla el polimorfo V: brillo, snap y fusi\u00f3n en boca.",
+    ref:"Cosgrove, T. (2010), <em>Colloid Science</em>, 2.\u00aa ed., Tabla 1.2, p. 5.",
+    svg: svgChocolate },
+  { name:"Mantequilla", type:"Emulsi\u00f3n s\u00f3lida W/O", badge:"Em. s\u00f3lida", dispersa:"Gotas de suero l\u00e1cteo", continua:"Grasa l\u00e1ctea cristalizada",
+    detail:"W/O obtenida por inversi\u00f3n de fases: al batir la crema (O/W), los gl\u00f3bulos de grasa coalescen y la fase continua pasa de agua a grasa, atrapando gotas de suero (~16% agua).",
+    ref:"McClements (2016), <em>Food Emulsions</em>, 3.\u00aa ed., pp. 2, 19 (\u00a71.2.1, \u00a71.3.5 nota al pie).",
+    svg: () => svgEmulsionWO({label:'Mantequilla \u2014 W/O'}) },
+  { name:"Miga de pan", type:"Espuma s\u00f3lida", badge:"Espuma s\u00f3lida", dispersa:"Celdas de gas (CO\u2082)", continua:"Red de gluten-almid\u00f3n",
+    detail:"La levadura produce CO\u2082 atrapado en la red de gluten. Al hornear, la matriz prote\u00edna-almid\u00f3n se solidifica alrededor de las celdas de gas, creando la estructura alveolar. El tama\u00f1o de los alv\u00e9olos determina la textura.",
+    ref:"Elaboraci\u00f3n propia con base en la clasificaci\u00f3n general de sistemas coloidales.",
+    svg: () => svgFoamSolid({label:'Miga de pan \u2014 espuma s\u00f3lida', matrixColor:'#C2A86B'}) },
+  { name:"Helado", type:"Espuma s\u00f3lida compleja", badge:"Espuma s\u00f3lida", dispersa:"Burbujas de aire + cristales de hielo", continua:"Matriz grasa-az\u00facar congelada",
+    detail:"Sistema multif\u00e1sico: burbujas de aire (~50% vol.), cristales de hielo, gl\u00f3bulos de grasa parcialmente coalescidos y soluci\u00f3n crioconcentrada. Estabilizantes (goma guar, CMC) controlan cristales de hielo.",
+    ref:"McClements (2016), <em>Food Emulsions</em>, 3.\u00aa ed., pp. 1, 19 (\u00a71.1, \u00a71.3.5 nota al pie).",
+    svg: () => svgFoamSolid({label:'Helado \u2014 espuma s\u00f3lida compleja', matrixColor:'#D4C8A8',
+      cells:[{cx:50,cy:30,rx:20,ry:16},{cx:130,cy:25,rx:25,ry:18},{cx:220,cy:30,rx:22,ry:20},
+        {cx:80,cy:70,rx:28,ry:22},{cx:170,cy:65,rx:24,ry:26},{cx:255,cy:60,rx:20,ry:18},
+        {cx:45,cy:108,rx:18,ry:14},{cx:120,cy:105,rx:26,ry:16},{cx:205,cy:100,rx:23,ry:20},
+        {cx:275,cy:95,rx:16,ry:14}]}) },
+  { name:"Gomitas", type:"Gel", badge:"Gel", dispersa:"Agua + az\u00facares", continua:"Red 3D de gelatina",
+    detail:"Cadenas de gelatina (col\u00e1geno hidrolizado) se entrelazan f\u00edsicamente al enfriar, atrapando fase acuosa con az\u00facares, \u00e1cidos y saborizantes. Gelificaci\u00f3n termorreversible: se funde al recalentar.",
+    ref:"Elaboraci\u00f3n propia con base en la clasificaci\u00f3n general de sistemas coloidales.",
+    svg: () => svgGel({label:'Gomitas \u2014 gel de gelatina', bgColor:'#F0D6D9', netColor:'#A03040'}) },
+  { name:"Gelatina (postre)", type:"Gel termorreversible", badge:"Gel", dispersa:"Agua", continua:"Red de gelatina",
+    detail:"Gel hidrof\u00edlico termorreversible. Al enfriar (<35 \u00b0C), las cadenas forman h\u00e9lices triples con uniones f\u00edsicas que atrapan agua. Mayor concentraci\u00f3n de gelatina = gel m\u00e1s firme.",
+    ref:"Elaboraci\u00f3n propia con base en la clasificaci\u00f3n general de sistemas coloidales.",
+    svg: () => svgGel({label:'Gelatina \u2014 gel termorreversible', bgColor:'#D6E8F0', netColor:'#1E3A5F'}) },
+  { name:"Huevo cocido", type:"Gel irreversible", badge:"Gel", dispersa:"Agua", continua:"Red de prote\u00ednas desnaturalizadas",
+    detail:"Al calentar >70 \u00b0C, prote\u00ednas (ovoalb\u00famina) se desnaturalizan y forman red 3D irreversible que atrapa agua. A diferencia de la gelatina, recalentar no revierte la gelificaci\u00f3n.",
+    ref:"Elaboraci\u00f3n propia con base en la clasificaci\u00f3n general de sistemas coloidales.",
+    svg: () => svgGel({label:'Huevo cocido \u2014 gel irreversible', bgColor:'#F5F0D0', netColor:'#8B7D3C'}) },
+  { name:"Aceite en spray", type:"Aerosol l\u00edquido", badge:"Aerosol", dispersa:"Gotas finas de aceite", continua:"Aire (gas)",
+    detail:"El propelente (gas a presi\u00f3n) dispersa el aceite en gotas finas (<100 \u00b5m). La fase continua es el aire circundante. Aerosol l\u00edquido porque la fase dispersa est\u00e1 en estado l\u00edquido.",
+    ref:"Cosgrove, T. (2010), <em>Colloid Science</em>, 2.\u00aa ed., Cap. 11, p. 219.",
+    svg: svgAerosolLiquid },
+  { name:"Humo de ahumado", type:"Aerosol s\u00f3lido", badge:"Aerosol", dispersa:"Part\u00edculas s\u00f3lidas", continua:"Aire",
+    detail:"Combusti\u00f3n incompleta genera part\u00edculas s\u00f3lidas microm\u00e9tricas suspendidas en aire. Transportan compuestos fen\u00f3licos que aportan sabor y color al alimento ahumado.",
+    ref:"Cosgrove, T. (2010), <em>Colloid Science</em>, 2.\u00aa ed., Cap. 11, p. 219.",
+    svg: svgAerosolSolid }
+];
+
+/* ═══ RENDER CARDS ═══ */
+function renderCards() {
+  const g = document.getElementById('cardsGrid'); g.innerHTML = '';
+  examples.forEach(ex => {
+    const c = document.createElement('div');
+    c.className = 'card'; c.tabIndex = 0;
+    c.onclick = () => c.classList.toggle('revealed');
+    c.onkeydown = e => { if(e.key==='Enter') c.classList.toggle('revealed'); };
+    const svgStr = typeof ex.svg === 'function' ? ex.svg() : ex.svg;
+    c.innerHTML = `
+      <div class="card-visual">
+        ${svgStr}<span class="badge">${ex.badge}</span>
+      </div>
+      <div class="card-body">
+        <h4>${ex.name}</h4><p>${ex.type}</p>
+        <div class="phase-labels">
+          <span class="phase-label dispersa">Dispersa: ${ex.dispersa}</span>
+          <span class="phase-label continua">Continua: ${ex.continua}</span>
+        </div>
+      </div>
+      <div class="card-reveal">
+        <button class="close-btn" onclick="event.stopPropagation();this.closest('.card').classList.remove('revealed')">&#10005;</button>
+        <h4>${ex.name} &mdash; ${ex.type}</h4>
+        <p>${ex.detail}</p>
+        <p style="margin-top:0.5rem;font-size:0.72rem;opacity:0.6">${ex.ref}</p>
+      </div>`;
+    g.appendChild(c);
+  });
+}
+
+/* ═══ EXERCISE DATA ═══ */
+const exerciseData = [
+  { food:"Mayonesa", dispersa:"Aceite", continua:"Agua" },
+  { food:"Miga de pan", dispersa:"CO\u2082 (gas)", continua:"Gluten-almid\u00f3n" },
+  { food:"Gomitas", dispersa:"Agua", continua:"Gelatina" },
+  { food:"Margarina", dispersa:"Agua", continua:"Grasa" },
+  { food:"Leche", dispersa:"Grasa", continua:"Suero" },
+  { food:"Aceite en spray", dispersa:"Aceite", continua:"Aire" },
+  { food:"Huevo cocido", dispersa:"Agua", continua:"Prote\u00edna" }
+];
+
+/* ═══ DRAG & DROP ═══ */
+let exCorrect = 0, exTotal = 0;
+function buildExercise() {
+  const bank = document.getElementById('dragBank'), rows = document.getElementById('dropRows');
+  bank.innerHTML = ''; rows.innerHTML = '';
+  exCorrect = 0; exTotal = exerciseData.length * 2;
+  document.getElementById('exerciseScore').textContent = '';
+  const items = [];
+  exerciseData.forEach(d => {
+    items.push({text:d.dispersa, food:d.food, role:'dispersa'});
+    items.push({text:d.continua, food:d.food, role:'continua'});
+  });
+  for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];}
+  items.forEach((it,i) => {
+    const el = document.createElement('span');
+    el.className = 'drag-item'; el.textContent = it.text; el.draggable = true;
+    el.dataset.food = it.food; el.dataset.role = it.role; el.dataset.id = i;
+    el.ondragstart = e => e.dataTransfer.setData('text/plain', i);
+    el.ontouchstart = tStart; el.ontouchmove = tMove; el.ontouchend = tEnd;
+    bank.appendChild(el);
+  });
+  exerciseData.forEach(d => {
+    const row = document.createElement('div'); row.className = 'drop-row';
+    row.innerHTML = `<span class="food-name">${d.food}</span>
+      <div class="drop-zone" data-food="${d.food}" data-role="dispersa"
+        ondragover="event.preventDefault();this.classList.add('over')"
+        ondragleave="this.classList.remove('over')" ondrop="doDrop(event,this)">Fase dispersa</div>
+      <div class="drop-zone" data-food="${d.food}" data-role="continua"
+        ondragover="event.preventDefault();this.classList.add('over')"
+        ondragleave="this.classList.remove('over')" ondrop="doDrop(event,this)">Fase continua</div>`;
+    rows.appendChild(row);
+  });
+}
+function doDrop(e, zone) {
+  e.preventDefault(); zone.classList.remove('over');
+  if (zone.classList.contains('filled')) return;
+  const id = e.dataTransfer.getData('text/plain');
+  const item = document.querySelector(`.drag-item[data-id="${id}"]`);
+  if (!item) return;
+  if (item.dataset.food === zone.dataset.food && item.dataset.role === zone.dataset.role) {
+    zone.textContent = item.textContent; zone.classList.add('filled');
+    item.classList.add('correct'); item.draggable = false; item.style.opacity='0.45'; item.style.cursor='default';
+    exCorrect++;
+  } else {
+    item.classList.add('incorrect'); setTimeout(()=>item.classList.remove('incorrect'),450);
+  }
+  const sc = document.getElementById('exerciseScore');
+  sc.textContent = `${exCorrect} / ${exTotal} correctos`;
+  if(exCorrect===exTotal) sc.textContent += ' \u2014 \u00a1Completado!';
+}
+function resetExercise(){buildExercise();}
+
+let dEl=null, dClone=null, dOx=0, dOy=0;
+function tStart(e){
+  dEl=e.target; if(!dEl.classList.contains('drag-item')||!dEl.draggable){dEl=null;return;}
+  const r=dEl.getBoundingClientRect(); dOx=e.touches[0].clientX-r.left; dOy=e.touches[0].clientY-r.top;
+  dClone=dEl.cloneNode(true); dClone.style.cssText='position:fixed;z-index:9999;pointer-events:none;opacity:0.85;width:'+r.width+'px';
+  document.body.appendChild(dClone);
+}
+function tMove(e){if(!dEl||!dClone)return;e.preventDefault();dClone.style.left=(e.touches[0].clientX-dOx)+'px';dClone.style.top=(e.touches[0].clientY-dOy)+'px';}
+function tEnd(e){
+  if(!dEl||!dClone)return; dClone.remove(); dClone=null;
+  const t=e.changedTouches[0], el=document.elementFromPoint(t.clientX,t.clientY);
+  if(el&&el.classList.contains('drop-zone')&&!el.classList.contains('filled')){
+    doDrop({preventDefault:()=>{},dataTransfer:{getData:()=>dEl.dataset.id}},el);
+  }
+  dEl=null;
+}
+
+/* ═══ QUIZ ═══ */
+const quizData = [
+  { q:"1. En una emulsi\u00f3n aceite-en-agua (O/W) como la leche, \u00bfcu\u00e1l es la fase continua?",
+    opts:["Aceite","Agua","Prote\u00edna","Aire"], correct:1,
+    fb:"En O/W, la fase continua es el agua (suero l\u00e1cteo) y la dispersa son gl\u00f3bulos de grasa." },
+  { q:"2. La mantequilla se obtiene al batir crema. \u00bfQu\u00e9 fen\u00f3meno ocurre?",
+    opts:["La grasa se disuelve en el agua","Inversi\u00f3n de fases: O/W \u2192 W/O","Se forma un gel de prote\u00ednas","El agua se evapora"],
+    correct:1, fb:"Al batir crema (O/W), los gl\u00f3bulos coalescen, la fase continua pasa de agua a grasa: inversi\u00f3n de fases." },
+  { q:"3. \u00bfQu\u00e9 tipo de sistema disperso es la miga del pan?",
+    opts:["Emulsi\u00f3n s\u00f3lida","Gel","Espuma s\u00f3lida","Aerosol s\u00f3lido"], correct:2,
+    fb:"Espuma s\u00f3lida: celdas de CO\u2082 atrapadas en matriz s\u00f3lida de gluten-almid\u00f3n." },
+  { q:"4. \u00bfCu\u00e1l es la diferencia entre gel de gelatina y clara de huevo cocida?",
+    opts:["La gelatina tiene m\u00e1s agua","Gelatina es termorreversible; clara cocida es irreversible","La clara no es gel","Ambos son reversibles"],
+    correct:1, fb:"Gelatina se funde al recalentar (uniones f\u00edsicas). La clara desnaturalizada forma red irreversible." },
+  { q:"5. En el chocolate s\u00f3lido, la fase continua es:",
+    opts:["Agua","Part\u00edculas de cacao","Manteca de cacao cristalizada","Az\u00facar glass"], correct:2,
+    fb:"Manteca de cacao cristalizada es la matriz s\u00f3lida (fase continua) con part\u00edculas de az\u00facar y cacao dispersas." },
+  { q:"6. En un aerosol como el aceite en spray, la fase dispersa es:",
+    opts:["Aire a presi\u00f3n","Part\u00edculas s\u00f3lidas","Gotas finas de aceite","Vapor de agua"], correct:2,
+    fb:"Fase dispersa = gotas de aceite; fase continua = aire. El propelente genera presi\u00f3n, no es la fase continua del aerosol formado." },
+  { q:"7. \u00bfQu\u00e9 factor NO influye en la estabilidad de una emulsi\u00f3n?",
+    opts:["Tensi\u00f3n interfacial","Potencial zeta","Temperatura de fusi\u00f3n del envase","Tama\u00f1o de gota"], correct:2,
+    fb:"Estabilidad depende de tensi\u00f3n interfacial, potencial zeta, tama\u00f1o de gota, pH y fuerza i\u00f3nica. El envase no es factor de la emulsi\u00f3n." }
+];
+
+let qAnswered=0, qCorrect=0;
+function renderQuiz(){
+  const c=document.getElementById('quizContainer'); c.innerHTML='';
+  qAnswered=0; qCorrect=0; document.getElementById('scoreBar').style.display='none';
+  quizData.forEach((q,qi)=>{
+    const d=document.createElement('div'); d.className='quiz-question'; d.id='qq-'+qi;
+    let oh=''; q.opts.forEach((o,oi)=>{ oh+=`<button class="quiz-opt" onclick="ansQ(${qi},${oi})">${o}</button>`; });
+    d.innerHTML=`<p class="q-text">${q.q}</p><div class="quiz-options">${oh}</div><div class="quiz-feedback" id="qf-${qi}"></div>`;
+    c.appendChild(d);
+  });
+}
+function ansQ(qi,oi){
+  const q=quizData[qi], d=document.getElementById('qq-'+qi);
+  if(d.classList.contains('answered-correct')||d.classList.contains('answered-incorrect'))return;
+  const bs=d.querySelectorAll('.quiz-opt'); bs.forEach(b=>b.disabled=true);
+  const ok=oi===q.correct;
+  bs[oi].classList.add(ok?'selected-correct':'selected-incorrect');
+  if(!ok) bs[q.correct].classList.add('show-correct');
+  d.classList.add(ok?'answered-correct':'answered-incorrect');
+  const fb=document.getElementById('qf-'+qi);
+  fb.className='quiz-feedback visible '+(ok?'correct':'incorrect');
+  fb.textContent=(ok?'\u2713 Correcto. ':'\u2717 Incorrecto. ')+q.fb;
+  qAnswered++; if(ok)qCorrect++;
+  if(qAnswered===quizData.length){
+    document.getElementById('scoreBar').style.display='flex';
+    document.getElementById('scoreText').textContent=`Resultado: ${qCorrect} / ${quizData.length} (${Math.round(qCorrect/quizData.length*100)}%)`;
+  }
+}
+function resetQuiz(){renderQuiz();}
+
+/* ═══ INIT ═══ */
+renderCards(); buildExercise(); renderQuiz();
+</script>
+</body>
+</html>
