@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador: Pérdidas por Fricción y Leq/D — Fluidos Alimentarios</title>
+
+<!-- KaTeX (render de ecuaciones) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<!-- Chart.js (gráfica ΔP vs v) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<style>
+  :root{
+    --navy:#1E3A5F; --navy-dark:#152B47;
+    --gold:#C9A227; --gold-soft:#E8D48A;
+    --cream:#F7F6F2; --ink:#2B2B2B;
+    --card:#FFFFFF; --line:#D8D3C4;
+    --warn-bg:#FBEFD8; --warn-line:#C9A227;
+    --err-bg:#F6E3E0; --err-line:#A4463A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Calibri,'Segoe UI',system-ui,Arial,sans-serif;background:var(--cream);color:var(--ink);line-height:1.5;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:var(--cream);
+    padding:24px 28px 18px;border-bottom:4px solid var(--gold);}
+  header .eyebrow{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-soft);}
+  header h1{font-family:Cambria,Georgia,serif;font-size:clamp(1.25rem,3vw,1.85rem);margin:4px 0 6px;}
+  header .author{font-size:.92rem;opacity:.92;}
+  header .author b{color:var(--gold-soft);}
+  main{max-width:1200px;margin:0 auto;padding:24px 18px 60px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:20px 22px;margin-bottom:20px;box-shadow:0 1px 3px rgba(30,58,95,.08);}
+  .card h2{font-family:Cambria,Georgia,serif;color:var(--navy);font-size:1.12rem;
+    border-bottom:2px solid var(--gold);display:inline-block;padding-bottom:2px;margin-bottom:12px;}
+  .card h3{font-family:Cambria,Georgia,serif;color:var(--navy);font-size:1rem;margin:14px 0 6px;}
+  .eq{background:var(--cream);border-left:4px solid var(--gold);padding:10px 16px;margin:10px 0;
+    overflow-x:auto;font-size:1.02rem;}
+  .eq .desc{font-size:.85rem;color:#555;margin-top:4px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media(max-width:940px){.grid2{grid-template-columns:1fr;}}
+  /* Controles: touch targets >= 44 px */
+  .control{margin-bottom:16px;}
+  .control label{display:flex;justify-content:space-between;align-items:baseline;
+    font-weight:600;font-size:.93rem;color:var(--navy);margin-bottom:5px;flex-wrap:wrap;gap:4px;}
+  .control output{font-family:Consolas,monospace;font-weight:700;}
+  select,input[type=number]{
+    width:100%;min-height:46px;padding:8px 12px;font-size:1rem;font-family:inherit;
+    border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
+  select:focus,input:focus{outline:3px solid var(--gold);outline-offset:1px;}
+  .rangewrap{display:flex;gap:10px;align-items:center;}
+  .rangewrap input[type=number]{width:110px;flex:none;}
+  input[type=range]{flex:1;height:44px;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer;}
+  input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;
+    background:linear-gradient(90deg,var(--navy),var(--gold));}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:26px;height:26px;margin-top:-9px;border-radius:50%;
+    background:var(--gold);border:3px solid var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.3);}
+  input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--navy),var(--gold));}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--gold);border:3px solid var(--navy);}
+  input[type=range]:focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
+  .hint{font-size:.8rem;color:#666;margin-top:3px;}
+  /* Indicadores de salida */
+  .indicators{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:8px 0 14px;}
+  .ind{background:var(--navy);color:var(--cream);border-radius:8px;padding:12px 8px;text-align:center;
+    border-bottom:4px solid var(--gold);}
+  .ind .val{font-family:Consolas,monospace;font-size:1.32rem;font-weight:700;color:var(--gold-soft);word-break:break-all;}
+  .ind .unit{font-size:.78rem;opacity:.85;}
+  .ind .name{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;margin-top:4px;}
+  .ind.hero{background:var(--gold);border-bottom-color:var(--navy);}
+  .ind.hero .val{color:var(--navy-dark);font-size:1.5rem;}
+  .ind.hero .name,.ind.hero .unit{color:var(--navy-dark);}
+  .tooltip{cursor:help;border-bottom:1px dotted var(--gold-soft);}
+  /* Tablas */
+  table{width:100%;border-collapse:collapse;font-size:.87rem;margin-top:8px;}
+  th{background:var(--navy);color:var(--cream);padding:7px 8px;text-align:center;font-weight:600;}
+  td{border:1px solid var(--line);padding:6px 8px;text-align:center;}
+  td.num{font-family:Consolas,monospace;}
+  tr:nth-child(even) td{background:var(--cream);}
+  td input{min-height:38px;width:90px;text-align:center;font-family:Consolas,monospace;
+    border:1px solid var(--line);border-radius:6px;padding:4px;}
+  .verify{color:#8a5a00;font-size:.78rem;font-weight:700;}
+  sup a{color:var(--navy);text-decoration:none;font-weight:700;}
+  /* Botones */
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  button{font-family:inherit;font-size:.95rem;font-weight:600;min-height:46px;min-width:44px;
+    padding:10px 18px;border-radius:8px;cursor:pointer;border:2px solid var(--navy);
+    background:var(--navy);color:var(--cream);transition:background .15s;}
+  button:hover{background:var(--navy-dark);}
+  button.secondary{background:transparent;color:var(--navy);}
+  button.secondary:hover{background:var(--gold-soft);}
+  button:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  /* Alertas pedagógicas */
+  #alerts{margin-top:10px;}
+  .alert{border-left:5px solid var(--warn-line);background:var(--warn-bg);
+    padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:8px;font-size:.9rem;}
+  .alert.err{border-left-color:var(--err-line);background:var(--err-bg);}
+  /* Referencias */
+  .ref{padding-left:2em;text-indent:-2em;margin-bottom:9px;font-size:.92rem;}
+  .ref a{color:var(--navy);word-break:break-all;}
+  footer{text-align:center;font-size:.82rem;color:#777;padding:20px;border-top:1px solid var(--line);}
+  .chartbox{position:relative;height:340px;}
+  .stats{font-family:Consolas,monospace;background:var(--cream);border:1px dashed var(--gold);
+    border-radius:8px;padding:10px 14px;margin-top:10px;font-size:.92rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Flujo de Fluidos · Pérdidas por Fricción · Factor de Fanning</div>
+  <h1>Simulador: Longitud Equivalente (L<sub>eq</sub>/D) de Accesorios con Fluidos Alimentarios</h1>
+  <div class="author"><b>Dr. Juan Gabriel Báez González</b> · Facultad de Ciencias Biológicas, Universidad Autónoma de Nuevo León<br>
+  Unidades de aprendizaje: Dispersiones y Reología de Alimentos · Tecnología de Emulsiones</div>
+</header>
+
+<main>
+
+<!-- ============ 1. INTRODUCCIÓN ============ -->
+<section class="card">
+  <h2>1 · Introducción: por qué importan las pérdidas por fricción en la industria de alimentos</h2>
+  <p style="margin-bottom:8px;">El transporte de fluidos por tuberías es la operación más ubicua de una planta de alimentos: líneas de pasteurización HTST, circuitos de limpieza CIP, llenado y envasado, transferencia entre tanques de proceso. En todas ellas, el fluido pierde energía mecánica por fricción contra la pared de la tubería (<b>pérdidas primarias</b>) y por la turbulencia y cambios de dirección que provocan codos, válvulas y tees (<b>pérdidas secundarias o menores</b>). Cuantificar ambas es indispensable para: (a) <b>seleccionar la bomba</b> —la carga total que debe vencer incluye estas pérdidas—, (b) <b>dimensionar energéticamente la línea</b> —el bombeo es un costo operativo permanente—, y (c) <b>proteger la calidad del producto</b>: en emulsiones y suspensiones alimentarias, el esfuerzo cortante en la pared (τ<sub>w</sub>) puede romper gotas, degradar estructura y modificar la viscosidad del producto final, de modo que la hidráulica de la línea es también una decisión de calidad, no solo de energía.</p>
+  <p style="margin-bottom:8px;">Los fluidos alimentarios complican el análisis clásico: el agua y los aceites son newtonianos, pero productos como la mayonesa o el catsup son <b>no-newtonianos con esfuerzo de cedencia</b> (modelo de Herschel-Bulkley): no fluyen hasta vencer τ₀ y su viscosidad aparente cae con la velocidad de deformación. Para ellos, el número de Reynolds convencional se sustituye por el <b>Reynolds generalizado de Metzner-Reed</b>, y las pérdidas se evalúan con el <b>factor de fricción de Fanning</b>, la convención dominante en ingeniería de alimentos y química (Steffe, 1996; McCabe et al., 2005).</p>
+  <p>Para los accesorios, este simulador emplea el <b>método de la longitud equivalente</b> (L<sub>eq</sub>/D): cada accesorio se expresa como los diámetros de tubería recta que producirían la misma caída de presión. Frente al método del coeficiente K, la longitud equivalente tiene una ventaja práctica con fluidos no-newtonianos: incorpora automáticamente el factor de fricción del fluido y régimen reales, de modo que la corrección por reología viaja dentro de <i>f</i>, mientras que los valores de K tabulados provienen casi siempre de agua en régimen turbulento. Tu objetivo experimental: <b>determinar L<sub>eq</sub>/D de un accesorio a partir de "mediciones" de ΔP con réplicas, y compararlo con el valor de tabla</b>.</p>
+</section>
+
+<!-- ============ 2. MARCO TEÓRICO ============ -->
+<section class="card">
+  <h2>2 · Marco teórico — ecuaciones (convención de Fanning)</h2>
+  <p style="font-size:.92rem;background:var(--warn-bg);border-left:4px solid var(--gold);padding:8px 12px;margin-bottom:10px;">
+  <b>Convención:</b> todo este simulador usa el factor de fricción de <b>Fanning</b>, definido a partir del esfuerzo cortante en la pared. En manuales de ingeniería civil e hidráulica encontrarás el factor de <b>Darcy</b>: \( f_{Darcy} = 4\,f_{Fanning} \). La salida muestra ambos para evitar ambigüedad.</p>
+
+  <div class="eq">$$\Delta P = 2\,f\,\frac{L}{D}\,\rho v^{2} \;=\; 4f\,\frac{L}{D}\,\frac{\rho v^{2}}{2}$$
+    <div class="desc">Ecuación de Darcy-Weisbach en forma de Fanning: caída de presión en tramo recto (McCabe et al., 2005).</div></div>
+
+  <div class="eq">$$\tau_w = f\,\frac{\rho v^{2}}{2}$$
+    <div class="desc">Esfuerzo cortante en la pared; definición del factor de Fanning.</div></div>
+
+  <div class="eq">$$Re = \frac{\rho v D}{\mu}$$
+    <div class="desc">Reynolds para fluidos newtonianos (agua, aceite de soya).</div></div>
+
+  <div class="eq">$$Re_{MR} = \frac{\rho\, v^{2-n} D^{n}}{K\, 8^{\,n-1}\left(\dfrac{3n+1}{4n}\right)^{n}}$$
+    <div class="desc">Reynolds generalizado de Metzner y Reed (1955) para fluidos de ley de potencia. En este simulador se aplica a la mayonesa y el catsup usando sus K y n de Herschel-Bulkley, <b>despreciando τ₀ en el cálculo de Re<sub>MR</sub></b>: es la aproximación usual y su limitación se advierte en pantalla.</div></div>
+
+  <div class="eq">$$\tau = \tau_0 + K\,\dot{\gamma}^{\,n}$$
+    <div class="desc">Modelo de Herschel-Bulkley (mayonesa, catsup): τ₀ = esfuerzo de cedencia, K = índice de consistencia, n = índice de comportamiento al flujo (Steffe, 1996; Rao, 2014).</div></div>
+
+  <div class="eq">$$He = \frac{\rho\, D^{2}\, \tau_0}{K^{2}}$$
+    <div class="desc"><b>Número de Hedström</b> — definido rigurosamente para plásticos de Bingham, donde K es la viscosidad plástica (Pa·s). Al aplicarlo a fluidos Herschel-Bulkley con n ≠ 1 las unidades dejan de ser consistentes; aquí se muestra únicamente como <b>indicador cualitativo</b> de la importancia del esfuerzo de cedencia (Chhabra &amp; Richardson, 2008).</div></div>
+
+  <div class="eq">$$f = \frac{16}{Re} \qquad (Re < 2100,\ \text{newtoniano})$$
+    <div class="desc">Fanning laminar newtoniano (McCabe et al., 2005).</div></div>
+
+  <div class="eq">$$f = \frac{16}{Re_{MR}} \qquad (Re_{MR} < 2100,\ \text{ley de potencia})$$
+    <div class="desc">Fanning laminar de Metzner-Reed; Re<sub>MR</sub> está construido precisamente para conservar esta forma (Metzner &amp; Reed, 1955). El límite laminar real varía con n; 2100 es la aproximación didáctica.</div></div>
+
+  <div class="eq">$$f = \frac{0.0791}{Re^{0.25}} \qquad (4000 < Re < 10^{5},\ \text{tubería lisa})$$
+    <div class="desc">Correlación de Blasius en forma de Fanning (McCabe et al., 2005).</div></div>
+
+  <div class="eq">$$\frac{1}{\sqrt{f_D}} = -2\log_{10}\!\left[\frac{\varepsilon/D}{3.7065} - \frac{5.0452}{Re}\log_{10}\!\left(\frac{(\varepsilon/D)^{1.1098}}{2.8257} + \frac{5.8506}{Re^{0.8981}}\right)\right],\qquad f = \frac{f_D}{4}$$
+    <div class="desc">Ecuación explícita de Chen (1979) para tubería rugosa en régimen turbulento (aproximación de Colebrook-White, error &lt; 1 %); se divide entre 4 para obtener Fanning.</div></div>
+
+  <div class="eq">$$\frac{1}{\sqrt{f}} = \frac{4}{n^{0.75}}\log_{10}\!\left[Re_{MR}\, f^{\,1-\frac{n}{2}}\right] - \frac{0.4}{n^{1.2}}$$
+    <div class="desc">Correlación de Dodge y Metzner (1959) para flujo turbulento de fluidos de ley de potencia en tubería lisa (se resuelve por iteración).</div></div>
+
+  <div class="eq">$$L_{eq} = \frac{\Delta P_{accesorio}\, D}{2\, f\, \rho\, v^{2}} \qquad\Rightarrow\qquad \boxed{\dfrac{L_{eq}}{D} = \dfrac{\Delta P_{accesorio}}{2\, f\, \rho\, v^{2}}}$$
+    <div class="desc">Longitud equivalente: despeje directo de Darcy-Weisbach aplicado al ΔP medido en el accesorio. Ésta es la ecuación que usarás con tus "mediciones".</div></div>
+</section>
+
+<!-- ============ 3. PARÁMETROS FISICOQUÍMICOS ============ -->
+<section class="card">
+  <h2>3 · Parámetros fisicoquímicos (25 °C) — editables</h2>
+  <p style="font-size:.9rem;margin-bottom:6px;">Los valores son editables para que puedas sustituirlos por <b>tus propios datos de reómetro</b> (práctica de laboratorio). Los marcados <span class="verify">◆ verificar</span> son representativos de intervalos publicados, no mediciones de una muestra específica: la reología de mayonesa y catsup comerciales varía fuertemente entre marcas y lotes.</p>
+  <div style="overflow-x:auto;">
+  <table id="propsTable">
+    <thead><tr>
+      <th>Fluido</th><th>ρ (kg/m³)</th><th>μ (Pa·s)</th><th>τ₀ (Pa)</th><th>K (Pa·sⁿ)</th><th>n (–)</th><th>Modelo</th><th>Fuente</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>Agua</td>
+        <td><input type="number" step="0.1" id="p_agua_rho" value="997.0"></td>
+        <td><input type="number" step="0.0001" id="p_agua_mu" value="0.00089"></td>
+        <td>—</td><td>—</td><td>1</td><td>Newtoniano</td>
+        <td><sup><a href="#ref-singh">[Singh &amp; Heldman]</a></sup></td></tr>
+      <tr><td>Aceite de soya</td>
+        <td><input type="number" step="0.1" id="p_aceite_rho" value="917.0"></td>
+        <td><input type="number" step="0.001" id="p_aceite_mu" value="0.055"></td>
+        <td>—</td><td>—</td><td>1</td><td>Newtoniano <span class="verify">◆ verificar μ</span></td>
+        <td><sup><a href="#ref-singh">[Singh &amp; Heldman]</a></sup></td></tr>
+      <tr><td>Mayonesa comercial</td>
+        <td><input type="number" step="1" id="p_mayo_rho" value="910"></td>
+        <td>—</td>
+        <td><input type="number" step="1" id="p_mayo_t0" value="85"></td>
+        <td><input type="number" step="0.5" id="p_mayo_K" value="25"></td>
+        <td><input type="number" step="0.01" id="p_mayo_n" value="0.35"></td>
+        <td>Herschel-Bulkley <span class="verify">◆ verificar K, n, ρ</span></td>
+        <td><sup><a href="#ref-katsaros">[Katsaros et al.]</a></sup></td></tr>
+      <tr><td>Catsup comercial</td>
+        <td><input type="number" step="1" id="p_cats_rho" value="1100"></td>
+        <td>—</td>
+        <td><input type="number" step="1" id="p_cats_t0" value="28"></td>
+        <td><input type="number" step="0.5" id="p_cats_K" value="12"></td>
+        <td><input type="number" step="0.01" id="p_cats_n" value="0.22"></td>
+        <td>Herschel-Bulkley <span class="verify">◆ verificar τ₀, ρ</span></td>
+        <td><sup><a href="#ref-koocheki">[Koocheki et al.]</a></sup></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="hint" style="margin-top:8px;">
+  Notas de trazabilidad: agua a 25 °C, ρ = 997 kg/m³ y μ = 8.9×10⁻⁴ Pa·s (tablas estándar; Singh &amp; Heldman, 2014; Green &amp; Southard, 2019). Aceite de soya: μ ≈ 0.05–0.06 Pa·s a 25 °C según fuente y lote; el valor cargado es representativo. Mayonesa: τ₀ = 85 Pa corresponde al límite inferior del intervalo 85–193 Pa reportado por Katsaros et al. (2020) para mayonesas de distinto tamaño de gota; K y n cargados son representativos del comportamiento Herschel-Bulkley descrito por Ma y Barbosa-Cánovas (1995) y <b>requieren verificación experimental con tu muestra</b>. Catsup: K = 12 Pa·sⁿ y n = 0.22 están dentro de los intervalos K = 8.4–27.2 Pa·sⁿ y n = 0.189–0.228 reportados por Koocheki et al. (2009); τ₀ = 28 Pa es representativo y <b>requiere verificación experimental</b>.
+  </p>
+</section>
+
+<!-- ============ 4. PANEL DE SIMULACIÓN ============ -->
+<div class="grid2">
+<section class="card">
+  <h2>4 · Panel de simulación (variables independientes)</h2>
+
+  <div class="control">
+    <label for="fluid">Fluido</label>
+    <select id="fluid">
+      <option value="agua">Agua</option>
+      <option value="aceite">Aceite de soya</option>
+      <option value="mayo">Mayonesa comercial (Herschel-Bulkley)</option>
+      <option value="cats">Catsup comercial (Herschel-Bulkley)</option>
+    </select>
+  </div>
+
+  <div class="control">
+    <label for="vel">Velocidad media, v <output id="velOut">1.50 m/s</output></label>
+    <div class="rangewrap">
+      <input type="range" id="vel" min="0.1" max="5.0" step="0.01" value="1.5">
+      <input type="number" id="velNum" min="0.1" max="5.0" step="0.01" value="1.5" aria-label="Velocidad en m/s">
+    </div>
+  </div>
+
+  <div class="control">
+    <label for="diam">Diámetro interno, D</label>
+    <select id="diam">
+      <option value="0.0127">0.0127 m (½ in nominal)</option>
+      <option value="0.01905">0.01905 m (¾ in)</option>
+      <option value="0.0254">0.0254 m (1 in)</option>
+      <option value="0.0381" selected>0.0381 m (1½ in)</option>
+      <option value="0.0508">0.0508 m (2 in)</option>
+      <option value="0.0762">0.0762 m (3 in)</option>
+      <option value="0.1016">0.1016 m (4 in)</option>
+    </select>
+    <div class="hint">Diámetros internos aproximados; el diámetro real depende de la cédula/calibre.</div>
+  </div>
+
+  <div class="control">
+    <label for="mat">Material de la tubería (rugosidad ε)</label>
+    <select id="mat">
+      <option value="0.045">Acero comercial — ε = 0.045 mm</option>
+      <option value="0.015" selected>Acero inoxidable sanitario — ε = 0.015 mm</option>
+      <option value="0.0015">PVC — ε = 0.0015 mm</option>
+      <option value="0.0015c">Cobre — ε = 0.0015 mm</option>
+      <option value="0.001">Vidrio — ε = 0.001 mm</option>
+    </select>
+    <div class="hint">Rugosidades absolutas típicas (Green &amp; Southard, 2019; varían con el acabado y el desgaste).</div>
+  </div>
+
+  <div class="control">
+    <label for="fit">Accesorio a caracterizar</label>
+    <select id="fit"></select>
+  </div>
+
+  <div class="control">
+    <label for="Lref">Tramo recto de referencia, L<sub>ref</sub> <output id="LrefOut">3.0 m</output></label>
+    <div class="rangewrap">
+      <input type="range" id="Lref" min="1" max="10" step="0.5" value="3">
+      <input type="number" id="LrefNum" min="1" max="10" step="0.5" value="3" aria-label="Longitud de tramo recto en m">
+    </div>
+  </div>
+
+  <div class="control">
+    <label for="temp">Temperatura <output id="tempOut">25 °C</output></label>
+    <div class="rangewrap">
+      <input type="range" id="temp" min="15" max="40" step="1" value="25">
+      <input type="number" id="tempNum" min="15" max="40" step="1" value="25" aria-label="Temperatura en °C">
+    </div>
+    <div class="hint">Recalcula ρ y μ del agua (tablas interpoladas) y del aceite (Arrhenius aproximado). <b>Mayonesa y catsup se mantienen a sus valores de 25 °C</b>: su dependencia térmica no se modela (advertencia en salida).</div>
+  </div>
+
+  <div class="btnrow">
+    <button id="btnRun">▶ Medir ΔP (nueva corrida)</button>
+    <button id="btnReset" class="secondary">Reiniciar réplicas</button>
+  </div>
+  <p class="hint">Cada corrida "mide" ΔP del accesorio con ruido gaussiano (σ = 3.5 %, ≈ ±7 % al 95 %) que simula la incertidumbre de los manómetros. Ejecuta <b>n = 5 réplicas</b> sin cambiar condiciones y analiza L<sub>eq</sub>/D promedio ± desviación estándar.</p>
+</section>
+
+<!-- ============ 5. SALIDA ============ -->
+<section class="card">
+  <h2>5 · Salida (variables dependientes)</h2>
+
+  <div class="indicators">
+    <div class="ind hero"><div class="val" id="oDPtot">—</div><span class="unit">Pa</span><div class="name">ΔP total</div></div>
+    <div class="ind"><div class="val" id="oDPrecto">—</div><span class="unit">Pa</span><div class="name">ΔP tramo recto</div></div>
+    <div class="ind"><div class="val" id="oDPacc">—</div><span class="unit">Pa</span><div class="name">ΔP accesorio (medido)</div></div>
+    <div class="ind"><div class="val" id="oRe">—</div><span class="unit" id="oReUnit">Re</span><div class="name" id="oReName">Reynolds</div></div>
+    <div class="ind"><div class="val" id="oRegimen" style="font-size:1rem;">—</div><span class="unit"></span><div class="name">Régimen</div></div>
+    <div class="ind"><div class="val" id="oFf">—</div><span class="unit"></span>
+      <div class="name"><span class="tooltip" title="En manuales civiles verá f_Darcy = 4 · f_Fanning">f Fanning ⓘ</span></div></div>
+    <div class="ind"><div class="val" id="oFd">—</div><span class="unit"></span><div class="name">f Darcy (= 4f)</div></div>
+    <div class="ind"><div class="val" id="oTw">—</div><span class="unit">Pa</span><div class="name">τ_w pared</div></div>
+    <div class="ind"><div class="val" id="oHe">—</div><span class="unit"></span><div class="name">Hedström (cualitativo)</div></div>
+    <div class="ind"><div class="val" id="oLeq">—</div><span class="unit">m</span><div class="name">L_eq experimental</div></div>
+    <div class="ind hero"><div class="val" id="oLeqD">—</div><span class="unit"></span><div class="name">L_eq/D experimental</div></div>
+    <div class="ind"><div class="val" id="oLeqDteo">—</div><span class="unit"></span><div class="name">L_eq/D tabla · % error</div></div>
+  </div>
+
+  <div class="stats" id="repStats">Réplicas acumuladas: 0 — ejecuta corridas para obtener el promedio ± DE de L<sub>eq</sub>/D.</div>
+
+  <div id="alerts" aria-live="polite"></div>
+
+  <h3>ΔP total vs velocidad (condiciones actuales)</h3>
+  <div class="chartbox"><canvas id="chart"></canvas></div>
+</section>
+</div>
+
+<!-- ============ 6. HISTORIAL Y EXPORTACIÓN ============ -->
+<section class="card">
+  <h2>6 · Historial de corridas</h2>
+  <div class="btnrow" style="margin-top:0;">
+    <button id="btnCSV" class="secondary">⬇ Exportar CSV</button>
+    <button id="btnClear" class="secondary">Borrar historial</button>
+  </div>
+  <div style="overflow-x:auto;">
+  <table id="histTable">
+    <thead><tr>
+      <th>#</th><th>Fluido</th><th>v (m/s)</th><th>D (m)</th><th>Material</th><th>Accesorio</th><th>T (°C)</th>
+      <th>Re / Re_MR</th><th>f Fanning</th><th>ΔP acc. (Pa)</th><th>L_eq (m)</th><th>L_eq/D</th>
+    </tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ 7. REFERENCIAS ============ -->
+<section class="card">
+  <h2>7 · Referencias (APA 7.ª ed.)</h2>
+  <p class="ref">Chen, N. H. (1979). An explicit equation for friction factor in pipe. <i>Industrial &amp; Engineering Chemistry Fundamentals, 18</i>(3), 296–297.</p>
+  <p class="ref">Chhabra, R. P., &amp; Richardson, J. F. (2008). <i>Non-Newtonian flow and applied rheology: Engineering applications</i> (2nd ed.). Butterworth-Heinemann.</p>
+  <p class="ref">Dodge, D. W., &amp; Metzner, A. B. (1959). Turbulent flow of non-Newtonian systems. <i>AIChE Journal, 5</i>(2), 189–204.</p>
+  <p class="ref">Green, D. W., &amp; Southard, M. Z. (Eds.). (2019). <i>Perry's chemical engineers' handbook</i> (9th ed.). McGraw-Hill Education.</p>
+  <p class="ref" id="ref-katsaros">Katsaros, G., Tsoukala, M., Giannoglou, M., &amp; Taoukis, P. (2020). Effect of storage on the rheological and viscoelastic properties of mayonnaise emulsions of different oil droplet size. <i>Heliyon, 6</i>(12). <a href="https://www.sciencedirect.com/science/article/pii/S2405844020326311">https://www.sciencedirect.com/science/article/pii/S2405844020326311</a></p>
+  <p class="ref" id="ref-koocheki">Koocheki, A., Ghandi, A., Razavi, S. M. A., Mortazavi, S. A., &amp; Vasiljevic, T. (2009). The rheological properties of ketchup as a function of different hydrocolloids and temperature. <i>International Journal of Food Science and Technology, 44</i>(3), 596–602. <a href="https://doi.org/10.1111/j.1365-2621.2008.01868.x">https://doi.org/10.1111/j.1365-2621.2008.01868.x</a></p>
+  <p class="ref">Ma, L., &amp; Barbosa-Cánovas, G. V. (1995). Rheological characterization of mayonnaise. Part II: Flow and viscoelastic properties at different oil and xanthan gum concentrations. <i>Journal of Food Engineering, 25</i>(3), 409–425.</p>
+  <p class="ref">McCabe, W. L., Smith, J. C., &amp; Harriott, P. (2005). <i>Unit operations of chemical engineering</i> (7th ed.). McGraw-Hill.</p>
+  <p class="ref">Metzner, A. B., &amp; Reed, J. C. (1955). Flow of non-Newtonian fluids—Correlation of the laminar, transition, and turbulent-flow regions. <i>AIChE Journal, 1</i>(4), 434–440.</p>
+  <p class="ref">Rao, M. A. (2014). <i>Rheology of fluid, semisolid, and solid foods: Principles and applications</i> (3rd ed.). Springer.</p>
+  <p class="ref" id="ref-singh">Singh, R. P., &amp; Heldman, D. R. (2014). <i>Introduction to food engineering</i> (5th ed.). Academic Press.</p>
+  <p class="ref">Steffe, J. F. (1996). <i>Rheological methods in food process engineering</i> (2nd ed.). Freeman Press.</p>
+  <p class="hint">Los valores de L<sub>eq</sub>/D "de tabla" del simulador son valores típicos de manuales de ingeniería (reproducidos en Green &amp; Southard, 2019, y McCabe et al., 2005); los valores reales dependen del fabricante y del régimen de flujo. Verifica ediciones y páginas contra los ejemplares de tu biblioteca antes de citar en reportes.</p>
+</section>
+
+</main>
+
+<footer>Simulador didáctico elaborado por el Dr. Juan Gabriel Báez González · FCB-UANL · Repositorio DYRA (GitHub Pages)</footer>
+
+<script>
+/* =====================================================================
+   SIMULADOR DE PÉRDIDAS POR FRICCIÓN — FACTOR DE FANNING
+   Comentarios en español. Toda la física está en funciones puras
+   para facilitar su revisión y su reutilización en clase.
+   ===================================================================== */
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+
+/* ---------- Catálogo de accesorios: Leq/D típicos de manuales ----------
+   Valores típicos tipo Crane/Perry (Green & Southard, 2019). Son valores
+   de referencia para comparación; los reales varían con el fabricante. */
+const FITTINGS = {
+  codo90std : {name:"Codo 90° estándar",        LeqD:30},
+  codo90RL  : {name:"Codo 90° radio largo",     LeqD:20},
+  codo45    : {name:"Codo 45° estándar",        LeqD:16},
+  compuerta : {name:"Válvula de compuerta (abierta)", LeqD:8},
+  globo     : {name:"Válvula de globo (abierta)",     LeqD:340},
+  esfera    : {name:"Válvula de esfera paso total (abierta)", LeqD:3},
+  teeDirecto: {name:"Tee, paso directo",        LeqD:20},
+  teeLateral: {name:"Tee, salida lateral",      LeqD:60}
+};
+// Poblar el select de accesorios
+const fitSel = $('fit');
+Object.entries(FITTINGS).forEach(([k,v])=>{
+  const o=document.createElement('option'); o.value=k;
+  o.textContent = v.name + "  (tabla: Leq/D = " + v.LeqD + ")";
+  fitSel.appendChild(o);
+});
+
+/* ---------- Propiedades del agua vs temperatura (tablas estándar) ---------- */
+const WATER = { // T(°C): [rho kg/m3, mu Pa·s]
+  15:[999.1,1.139e-3], 20:[998.2,1.002e-3], 25:[997.0,0.890e-3],
+  30:[995.7,0.798e-3], 35:[994.0,0.719e-3], 40:[992.2,0.653e-3]
+};
+function waterProps(T){
+  const keys=[15,20,25,30,35,40];
+  if(T<=15) return WATER[15]; if(T>=40) return WATER[40];
+  let lo=15; for(const k of keys){ if(k<=T) lo=k; }
+  const hi=Math.min(40,lo+5), t=(T-lo)/(hi-lo);
+  return [ WATER[lo][0]+t*(WATER[hi][0]-WATER[lo][0]),
+           WATER[lo][1]+t*(WATER[hi][1]-WATER[lo][1]) ];
+}
+/* Aceite: corrección Arrhenius APROXIMADA de μ con Ea ≈ 27 kJ/mol
+   (orden de magnitud típico de aceites vegetales; marcar como aproximado)
+   y expansión térmica ~ -0.65 kg/m³ por °C. */
+function oilProps(T, rho25, mu25){
+  const R=8.314, Ea=27000;
+  const mu = mu25*Math.exp((Ea/R)*(1/(T+273.15)-1/298.15));
+  const rho = rho25 - 0.65*(T-25);
+  return [rho, mu];
+}
+
+/* ---------- Lectura del estado de la interfaz ---------- */
+function readFluid(){
+  const T = parseFloat($('temp').value);
+  const f = $('fluid').value;
+  if(f==='agua'){
+    let [rho,mu]=waterProps(T);
+    // si el usuario editó los valores base de 25 °C, escalar proporcionalmente
+    const r0=parseFloat($('p_agua_rho').value), m0=parseFloat($('p_agua_mu').value);
+    rho *= r0/997.0; mu *= m0/0.00089;
+    return {type:'newt', name:'Agua', rho, mu};
+  }
+  if(f==='aceite'){
+    const [rho,mu]=oilProps(T, parseFloat($('p_aceite_rho').value), parseFloat($('p_aceite_mu').value));
+    return {type:'newt', name:'Aceite de soya', rho, mu};
+  }
+  if(f==='mayo'){
+    return {type:'hb', name:'Mayonesa', rho:parseFloat($('p_mayo_rho').value),
+      t0:parseFloat($('p_mayo_t0').value), K:parseFloat($('p_mayo_K').value), n:parseFloat($('p_mayo_n').value)};
+  }
+  return {type:'hb', name:'Catsup', rho:parseFloat($('p_cats_rho').value),
+    t0:parseFloat($('p_cats_t0').value), K:parseFloat($('p_cats_K').value), n:parseFloat($('p_cats_n').value)};
+}
+function readGeom(){
+  const matRaw=$('mat').value;
+  return {
+    v: parseFloat($('vel').value),
+    D: parseFloat($('diam').value),
+    eps: parseFloat(matRaw)/1000,          // mm → m
+    matName: $('mat').options[$('mat').selectedIndex].text.split('—')[0].trim(),
+    L: parseFloat($('Lref').value),
+    T: parseFloat($('temp').value),
+    fitKey: fitSel.value
+  };
+}
+
+/* ---------- Núcleo hidráulico (todas en convención FANNING) ---------- */
+function ReNewt(rho,v,D,mu){ return rho*v*D/mu; }
+function ReMR(rho,v,D,K,n){
+  return (rho*Math.pow(v,2-n)*Math.pow(D,n)) /
+         (K*Math.pow(8,n-1)*Math.pow((3*n+1)/(4*n), n));
+}
+/* Chen (1979): explícita para Colebrook; devuelve f_FANNING */
+function fChen(Re, relRough){
+  const A = Math.pow(relRough,1.1098)/2.8257 + 5.8506/Math.pow(Re,0.8981);
+  const inv = -2*Math.log10( relRough/3.7065 - (5.0452/Re)*Math.log10(A) );
+  const fD = 1/(inv*inv);
+  return fD/4;
+}
+/* Dodge-Metzner (1959): implícita, se resuelve por punto fijo; f_FANNING */
+function fDodgeMetzner(ReG, n){
+  let f = 0.0791/Math.pow(ReG,0.25); // semilla Blasius
+  for(let i=0;i<60;i++){
+    const rhs = (4/Math.pow(n,0.75))*Math.log10(ReG*Math.pow(f,1-n/2)) - 0.4/Math.pow(n,1.2);
+    const fNew = 1/(rhs*rhs);
+    if(Math.abs(fNew-f)<1e-10) { f=fNew; break; }
+    f = 0.5*f+0.5*fNew; // relajación para estabilidad
+  }
+  return f;
+}
+/* Selección de correlación según fluido y régimen.
+   Devuelve {f, Re, regimen, notas[]} */
+function friction(fl, g){
+  const notas=[];
+  if(fl.type==='newt'){
+    const Re = ReNewt(fl.rho,g.v,g.D,fl.mu);
+    if(Re<2100) return {f:16/Re, Re, regimen:'Laminar', notas};
+    if(Re<4000){
+      // Transición: interpolación lineal en Re entre f_lam(2100) y f_turb(4000)
+      const f1=16/2100, f2=fChen(4000, g.eps/g.D);
+      const f = f1 + (f2-f1)*(Re-2100)/1900;
+      notas.push("Régimen de transición (2100 < Re < 4000): el factor de fricción es impredecible; el valor mostrado es una interpolación didáctica, no una correlación publicada.");
+      return {f, Re, regimen:'Transición', notas};
+    }
+    if(Re>1e5 && g.eps/g.D < 1e-5){
+      notas.push("Re > 10⁵ con tubería casi lisa: Blasius queda fuera de rango; se usa Chen (1979).");
+    }
+    return {f:fChen(Re, g.eps/g.D), Re, regimen:'Turbulento', notas};
+  }
+  // Herschel-Bulkley → Re generalizado con K, n (τ0 despreciado en Re_MR)
+  const Re = ReMR(fl.rho,g.v,g.D,fl.K,fl.n);
+  notas.push("Re_MR calculado con K y n de Herschel-Bulkley despreciando τ₀ (aproximación de ley de potencia); el límite laminar real depende de n (aquí se usa 2100 como criterio didáctico).");
+  if(Re<2100) return {f:16/Re, Re, regimen:'Laminar (no-newtoniano)', notas};
+  if(Re<4000){
+    const f1=16/2100, f2=fDodgeMetzner(4000, fl.n);
+    const f=f1+(f2-f1)*(Re-2100)/1900;
+    notas.push("Transición no-newtoniana: interpolación didáctica entre Metzner-Reed y Dodge-Metzner.");
+    return {f, Re, regimen:'Transición (no-newt.)', notas};
+  }
+  notas.push("Turbulento no-newtoniano: correlación de Dodge y Metzner (1959) para tubería lisa; la rugosidad no se corrige en este caso.");
+  return {f:fDodgeMetzner(Re, fl.n), Re, regimen:'Turbulento (no-newt.)', notas};
+}
+
+/* Ruido gaussiano (Box-Muller). σ = 3.5 % → ±7 % ≈ intervalo al 95 % */
+function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+
+/* Cálculo completo de una corrida.
+   withNoise=true → ΔP_acc "medido" con ruido (experimento);
+   withNoise=false → curva teórica para la gráfica. */
+function compute(withNoise){
+  const fl=readFluid(), g=readGeom();
+  const fr=friction(fl,g);
+  const dyn = fl.rho*g.v*g.v;                      // ρv²
+  const dPrecto = 2*fr.f*(g.L/g.D)*dyn;            // ΔP = 2 f (L/D) ρ v²
+  const LeqD_teo = FITTINGS[g.fitKey].LeqD;
+  let dPacc = 2*fr.f*LeqD_teo*dyn;                 // ΔP "verdadero" del accesorio
+  if(withNoise) dPacc *= (1 + 0.035*gauss());      // medición con incertidumbre
+  const LeqD_exp = dPacc/(2*fr.f*dyn);             // despeje: Leq/D = ΔPacc /(2 f ρ v²)
+  const Leq = LeqD_exp*g.D;
+  const tw = fr.f*dyn/2;                           // τw = f ρ v²/2
+  const He = (fl.type==='hb') ? fl.rho*g.D*g.D*fl.t0/(fl.K*fl.K) : null; // cualitativo
+  return {fl,g,fr,dPrecto,dPacc,dPtot:dPrecto+dPacc,LeqD_teo,LeqD_exp,Leq,tw,He};
+}
+
+/* ---------- Advertencias pedagógicas automáticas ---------- */
+function buildAlerts(r){
+  const A=[];
+  r.fr.notas.forEach(n=>A.push({t:n, err:false}));
+  if(r.fl.type==='hb'){
+    A.push({t:"Mayonesa/catsup: los parámetros reológicos se mantienen a 25 °C aunque cambies la temperatura; su dependencia térmica no está modelada.", err:false});
+    if(r.fr.regimen.startsWith('Laminar')){
+      A.push({t:"Flujo laminar no-newtoniano: con esfuerzo de cedencia existe una zona tapón central; el método Leq/D pierde precisión porque los valores de tabla provienen de flujo turbulento newtoniano.", err:false});
+    }
+    // Riesgo de no vencer el esfuerzo de cedencia: comparar τw contra τ0
+    if(r.tw <= r.fl.t0){
+      A.push({t:"⚠ τ_w ("+r.tw.toFixed(1)+" Pa) ≤ τ₀ ("+r.fl.t0+" Pa): el esfuerzo en pared no vence el esfuerzo de cedencia → riesgo de flujo tapón severo o bloqueo de línea. Aumenta v o reduce D.", err:true});
+    } else if(r.tw < 2*r.fl.t0){
+      A.push({t:"τ₀/τ_w = "+(r.fl.t0/r.tw).toFixed(2)+": zona tapón considerable; el perfil dista mucho del parabólico y las correlaciones son menos confiables.", err:false});
+    }
+  }
+  if(r.fl.name==='Aceite de soya' && r.g.v>3){
+    A.push({t:"Velocidad alta con aceite viscoso: la disipación viscosa puede calentar el fluido y reducir μ a lo largo de la línea (calentamiento viscoso no modelado).", err:false});
+  }
+  if(r.fr.regimen==='Turbulento' && r.fr.Re>1e5 && r.g.eps/r.g.D<1e-5){
+    // ya avisado en friction()
+  }
+  return A;
+}
+
+/* ---------- Estado de réplicas e historial ---------- */
+const state={hist:[], reps:[], repKey:null};
+function condKey(){ const g=readGeom(); return [$('fluid').value,g.v,g.D,g.eps,g.fitKey,g.L,g.T].join('|'); }
+
+/* ---------- Render de salida ---------- */
+function fmt(x,d){ return (x===null||!isFinite(x))?'—':Number(x).toLocaleString('es-MX',{maximumFractionDigits:d,minimumFractionDigits:0}); }
+function sci(x){ if(x===null) return '—';
+  return x>=1000?Number(x.toPrecision(4)).toLocaleString('es-MX'):x.toPrecision(4); }
+
+function render(r){
+  $('oDPtot').textContent = fmt(r.dPtot,0);
+  $('oDPrecto').textContent = fmt(r.dPrecto,0);
+  $('oDPacc').textContent = fmt(r.dPacc,0);
+  $('oRe').textContent = fmt(r.fr.Re, r.fr.Re<100?2:0);
+  $('oReName').textContent = (r.fl.type==='hb')?'Re Metzner-Reed':'Reynolds';
+  $('oRegimen').textContent = r.fr.regimen;
+  $('oFf').textContent = r.fr.f.toPrecision(4);
+  $('oFd').textContent = (4*r.fr.f).toPrecision(4);
+  $('oTw').textContent = fmt(r.tw,1);
+  $('oHe').textContent = r.He===null?'— (newtoniano)':sci(r.He);
+  $('oLeq').textContent = fmt(r.Leq,2);
+  $('oLeqD').textContent = fmt(r.LeqD_exp,1);
+  const err = 100*(r.LeqD_exp-r.LeqD_teo)/r.LeqD_teo;
+  $('oLeqDteo').textContent = r.LeqD_teo+" · "+(err>=0?'+':'')+err.toFixed(1)+" %";
+  // Alertas
+  const box=$('alerts'); box.innerHTML='';
+  buildAlerts(r).forEach(a=>{
+    const d=document.createElement('div'); d.className='alert'+(a.err?' err':''); d.textContent=a.t; box.appendChild(d);
+  });
+  // Estadística de réplicas
+  const n=state.reps.length;
+  if(n===0){ $('repStats').innerHTML='Réplicas acumuladas: 0 — ejecuta corridas para obtener el promedio ± DE de L<sub>eq</sub>/D.'; }
+  else{
+    const m=state.reps.reduce((a,b)=>a+b,0)/n;
+    const sd=n>1?Math.sqrt(state.reps.reduce((a,b)=>a+(b-m)**2,0)/(n-1)):0;
+    $('repStats').innerHTML='Réplicas en estas condiciones: n = '+n+' &nbsp;→&nbsp; <b>L<sub>eq</sub>/D = '
+      +m.toFixed(1)+' ± '+sd.toFixed(1)+'</b> (media ± DE muestral)'+(n<5?' — se recomiendan 5 réplicas.':' ✔');
+  }
+}
+
+/* ---------- Gráfica ΔP vs v (Chart.js) ---------- */
+let chart=null;
+function drawChart(){
+  const g=readGeom(), fl=readFluid();
+  const vs=[], dps=[];
+  const vSave=$('vel').value;
+  for(let v=0.1;v<=5.001;v+=0.1){
+    $('vel').value=v;
+    const r=compute(false);
+    vs.push(v.toFixed(1)); dps.push(r.dPtot);
+  }
+  $('vel').value=vSave;
+  const rNow=compute(false);
+  const ctx=$('chart').getContext('2d');
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{
+    type:'line',
+    data:{labels:vs,datasets:[
+      {label:'ΔP total (Pa) — '+fl.name+', '+FITTINGS[g.fitKey].name,
+       data:dps,borderColor:'#1E3A5F',backgroundColor:'rgba(30,58,95,.08)',
+       borderWidth:2.5,pointRadius:0,fill:true,tension:.15},
+      {label:'Punto de operación',type:'scatter',
+       data:[{x:(g.v-0.1)/0.1, y:compute(false).dPtot}],
+       parsing:false,pointRadius:7,pointBackgroundColor:'#C9A227',
+       pointBorderColor:'#1E3A5F',pointBorderWidth:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{
+        x:{title:{display:true,text:'v (m/s)'},ticks:{maxTicksLimit:11}},
+        y:{title:{display:true,text:'ΔP total (Pa)'},type:'logarithmic'}
+      },
+      plugins:{legend:{labels:{font:{family:'Calibri'}}},
+        tooltip:{callbacks:{label:c=>' ΔP = '+Math.round(c.parsed.y).toLocaleString('es-MX')+' Pa'}}}
+    }
+  });
+}
+
+/* ---------- Historial + CSV ---------- */
+function pushHist(r){
+  state.hist.push({
+    fluido:r.fl.name, v:r.g.v, D:r.g.D, material:r.g.matName,
+    accesorio:FITTINGS[r.g.fitKey].name, T:r.g.T,
+    Re:r.fr.Re, f:r.fr.f, dP:r.dPacc, Leq:r.Leq, LeqD:r.LeqD_exp
+  });
+  renderHist();
+}
+function renderHist(){
+  const tb=document.querySelector('#histTable tbody');
+  tb.innerHTML=state.hist.map((h,i)=>'<tr><td class="num">'+(i+1)+'</td><td>'+h.fluido+
+    '</td><td class="num">'+h.v.toFixed(2)+'</td><td class="num">'+h.D.toFixed(4)+
+    '</td><td>'+h.material+'</td><td>'+h.accesorio+'</td><td class="num">'+h.T+
+    '</td><td class="num">'+(h.Re<100?h.Re.toFixed(2):Math.round(h.Re).toLocaleString('es-MX'))+
+    '</td><td class="num">'+h.f.toPrecision(4)+'</td><td class="num">'+Math.round(h.dP).toLocaleString('es-MX')+
+    '</td><td class="num">'+h.Leq.toFixed(2)+'</td><td class="num">'+h.LeqD.toFixed(1)+'</td></tr>').join('');
+}
+$('btnCSV').addEventListener('click',()=>{
+  if(!state.hist.length){alert('No hay corridas registradas.');return;}
+  let csv='n,fluido,v_m_s,D_m,material,accesorio,T_C,Re_o_ReMR,f_Fanning,dP_accesorio_Pa,Leq_m,Leq_sobre_D\n';
+  state.hist.forEach((h,i)=>{
+    csv+=[i+1,h.fluido,h.v,h.D,'"'+h.material+'"','"'+h.accesorio+'"',h.T,
+      h.Re.toPrecision(6),h.f.toPrecision(6),h.dP.toFixed(1),h.Leq.toFixed(4),h.LeqD.toFixed(3)].join(',')+'\n';
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='leq_d_corridas.csv'; a.click();
+});
+$('btnClear').addEventListener('click',()=>{state.hist=[];renderHist();});
+
+/* ---------- Eventos ---------- */
+function syncPair(rangeId,numId,outId,unit,dec){
+  const r=$(rangeId),n=$(numId);
+  const upd=src=>{
+    const v=parseFloat(src.value)||parseFloat(r.min);
+    r.value=v;n.value=v;
+    if(outId) $(outId).textContent=Number(v).toFixed(dec)+' '+unit;
+    onInputChange();
+  };
+  r.addEventListener('input',()=>upd(r));
+  n.addEventListener('change',()=>upd(n));
+}
+syncPair('vel','velNum','velOut','m/s',2);
+syncPair('Lref','LrefNum','LrefOut','m',1);
+syncPair('temp','tempNum','tempOut','°C',0);
+['fluid','diam','mat','fit'].forEach(id=>$(id).addEventListener('change',onInputChange));
+document.querySelectorAll('#propsTable input').forEach(inp=>inp.addEventListener('change',onInputChange));
+
+function onInputChange(){
+  // Cambiaron condiciones → las réplicas anteriores ya no aplican
+  const k=condKey();
+  if(k!==state.repKey){ state.reps=[]; state.repKey=k; }
+  render(compute(false));   // vista previa determinista (sin ruido)
+  drawChart();
+}
+$('btnRun').addEventListener('click',()=>{
+  const k=condKey();
+  if(k!==state.repKey){ state.reps=[]; state.repKey=k; }
+  const r=compute(true);    // corrida "experimental" con ruido
+  state.reps.push(r.LeqD_exp);
+  pushHist(r);
+  render(r);
+});
+$('btnReset').addEventListener('click',()=>{ state.reps=[]; render(compute(false)); });
+
+/* ---------- Arranque ---------- */
+document.addEventListener('DOMContentLoaded',()=>{
+  // Render de ecuaciones KaTeX
+  if(window.renderMathInElement){
+    renderMathInElement(document.body,{delimiters:[
+      {left:'$$',right:'$$',display:true},
+      {left:'\\(',right:'\\)',display:false}]});
+  }
+  onInputChange();
+});
+})();
+</script>
+</body>
+</html>

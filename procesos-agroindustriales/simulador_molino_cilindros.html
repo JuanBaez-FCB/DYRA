@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador: Molino de Cilindros — Harina de Trigo</title>
+<style>
+  :root{
+    --navy:#1E3A5F;
+    --navy-dark:#152B47;
+    --gold:#C9A227;
+    --gold-soft:#E8D48A;
+    --cream:#F7F6F2;
+    --ink:#2B2B2B;
+    --ok:#3E7C4F;
+    --card:#FFFFFF;
+    --line:#D8D3C4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:Calibri,'Segoe UI',Arial,sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.45;
+  }
+  header{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dark) 100%);
+    color:var(--cream);
+    padding:22px 28px 18px;
+    border-bottom:4px solid var(--gold);
+  }
+  header .eyebrow{
+    font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold-soft);margin-bottom:4px;
+  }
+  header h1{
+    font-family:Cambria,Georgia,serif;
+    font-size:clamp(1.3rem,3vw,1.9rem);
+    font-weight:700;
+  }
+  header p{font-size:.92rem;opacity:.85;margin-top:4px;}
+  main{max-width:1180px;margin:0 auto;padding:24px 20px 60px;}
+  .grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:20px;
+  }
+  @media(max-width:900px){.grid{grid-template-columns:1fr;}}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 20px;
+    box-shadow:0 1px 3px rgba(30,58,95,.08);
+  }
+  .card h2{
+    font-family:Cambria,Georgia,serif;
+    color:var(--navy);
+    font-size:1.05rem;
+    border-bottom:2px solid var(--gold);
+    display:inline-block;
+    padding-bottom:2px;
+    margin-bottom:12px;
+  }
+  /* Controles */
+  .control{margin-bottom:16px;}
+  .control label{
+    display:flex;justify-content:space-between;
+    font-weight:600;font-size:.92rem;color:var(--navy);margin-bottom:4px;
+  }
+  .control label output{
+    font-family:Consolas,monospace;color:var(--ink);font-weight:700;
+  }
+  input[type=range]{
+    width:100%;height:8px;appearance:none;-webkit-appearance:none;
+    background:linear-gradient(90deg,var(--navy),var(--gold));
+    border-radius:4px;outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:22px;height:22px;border-radius:50%;
+    background:var(--gold);border:3px solid var(--navy);
+    box-shadow:0 1px 4px rgba(0,0,0,.3);
+  }
+  input[type=range]:focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
+  .hint{font-size:.8rem;color:#666;margin-top:2px;}
+  /* Indicadores */
+  .indicators{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+  @media(max-width:520px){.indicators{grid-template-columns:1fr;}}
+  .ind{
+    background:var(--navy);color:var(--cream);
+    border-radius:8px;padding:12px 10px;text-align:center;
+    border-bottom:4px solid var(--gold);
+  }
+  .ind .val{font-family:Consolas,monospace;font-size:1.45rem;font-weight:700;color:var(--gold-soft);}
+  .ind .unit{font-size:.8rem;opacity:.8;}
+  .ind .name{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+  .badge{
+    display:inline-block;margin-top:6px;padding:2px 10px;border-radius:12px;
+    font-size:.78rem;font-weight:700;
+  }
+  .badge.harina{background:var(--gold-soft);color:var(--navy-dark);}
+  .badge.semola{background:#B9CBDF;color:var(--navy-dark);}
+  .badge.triturado{background:#E0DAC8;color:#5a5138;}
+  canvas{width:100%;height:auto;display:block;}
+  svg{display:block;width:100%;height:auto;}
+  /* Tabla */
+  table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:8px;}
+  th{background:var(--navy);color:var(--cream);padding:6px 8px;text-align:center;font-weight:600;}
+  td{border:1px solid var(--line);padding:5px 8px;text-align:center;font-family:Consolas,monospace;}
+  tr:nth-child(even) td{background:var(--cream);}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+  button{
+    font-family:inherit;font-size:.9rem;font-weight:600;
+    padding:8px 16px;border-radius:6px;cursor:pointer;
+    border:2px solid var(--navy);background:var(--navy);color:var(--cream);
+    transition:background .15s;
+  }
+  button:hover{background:var(--navy-dark);}
+  button.secondary{background:transparent;color:var(--navy);}
+  button.secondary:hover{background:var(--gold-soft);}
+  button:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .full{grid-column:1/-1;}
+  details{margin-top:10px;}
+  summary{cursor:pointer;font-weight:600;color:var(--navy);}
+  .eq{
+    font-family:Cambria,Georgia,serif;background:var(--cream);
+    border-left:4px solid var(--gold);padding:8px 14px;margin:8px 0;font-size:1rem;
+  }
+  .preguntas li{margin:8px 0 8px 18px;}
+  .ref{
+    padding-left:2em;text-indent:-2em;
+    margin-bottom:8px;font-size:.92rem;text-align:left;
+  }
+  footer{
+    text-align:center;font-size:.8rem;color:#777;padding:18px;
+    border-top:1px solid var(--line);
+  }
+  @media(prefers-reduced-motion:reduce){
+    .particle{animation:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Operaciones Unitarias · Reducción de tamaño</div>
+  <h1>Simulador: Molino de Cilindros para Harina de Trigo</h1>
+  <p>Variable independiente: separación entre cilindros (<em>b</em>) · Variables dependientes: potencia consumida (<em>P</em>) y tamaño de partícula (<em>d</em><sub>80</sub>)</p>
+  <p style="margin-top:6px;font-size:.88rem;color:var(--gold-soft);">Dr. Juan Gabriel Báez González · Departamento de Alimentos, FCB-UANL</p>
+</header>
+
+<main>
+  <div class="grid">
+
+    <!-- INTRODUCCIÓN -->
+    <section class="card full">
+      <h2>Introducción: la reducción de tamaño en la industria de alimentos</h2>
+      <p style="margin-bottom:8px;">La <b>reducción de tamaño</b> es una de las operaciones unitarias más extendidas en el procesamiento de alimentos: incrementa el área superficial del material, lo que acelera operaciones posteriores como extracción, secado, mezclado e hidratación; permite separar componentes anatómicos del grano (endospermo, salvado y germen); y estandariza la granulometría, propiedad crítica para la funcionalidad tecnológica de polvos alimentarios (capacidad de absorción de agua, fluidez, velocidad de disolución).</p>
+      <p style="margin-bottom:8px;">En la <b>molienda de trigo</b>, el equipo central es el <b>molino de cilindros (rodillos)</b>: pares de cilindros que giran en sentidos opuestos y a velocidades diferenciales, fracturando el grano por compresión y cizalla. El proceso industrial es gradual: pasadas de <i>trituración</i> (rodillos estriados, separaciones amplias) abren el grano y liberan sémolas, y pasadas de <i>reducción</i> (rodillos lisos, separaciones finas) convierten las sémolas en harina, intercalando cernido entre etapas. La <b>separación entre cilindros</b> es la variable de operación que el molinero ajusta en planta, y determina simultáneamente el tamaño de partícula del producto y el consumo de energía.</p>
+      <p>La energía es el costo dominante de esta operación: las leyes de conminución (Kick, Rittinger y Bond) muestran que el requerimiento energético crece de forma no lineal conforme el producto se hace más fino. Este simulador te permite explorar cuantitativamente ese compromiso <b>finura ↔ potencia</b>, el mismo que enfrenta la industria harinera al fijar sus condiciones de operación.</p>
+    </section>
+
+    <!-- ESQUEMA + CONTROLES -->
+    <section class="card">
+      <h2>Equipo y variables de operación</h2>
+
+      <svg id="millSVG" viewBox="0 0 420 300" role="img" aria-label="Esquema de molino de cilindros con separación ajustable">
+        <!-- tolva -->
+        <polygon points="150,10 270,10 232,70 188,70" fill="#8FA6BF" stroke="#1E3A5F" stroke-width="2"/>
+        <text x="210" y="35" text-anchor="middle" font-size="13" fill="#1E3A5F" font-weight="bold">Trigo (F₈₀ = 4000 µm)</text>
+        <!-- grano cayendo -->
+        <g id="feedStream"></g>
+        <!-- rodillos -->
+        <g id="rollL">
+          <circle cx="150" cy="150" r="58" fill="#5C728C" stroke="#1E3A5F" stroke-width="3"/>
+          <circle cx="150" cy="150" r="8" fill="#1E3A5F"/>
+          <g id="spokesL" stroke="#3E5470" stroke-width="2">
+            <line x1="150" y1="96" x2="150" y2="204"/>
+            <line x1="96" y1="150" x2="204" y2="150"/>
+          </g>
+          <path d="M 150 78 A 72 72 0 0 1 216 128" fill="none" stroke="#C9A227" stroke-width="3" marker-end="url(#arrow)"/>
+        </g>
+        <g id="rollR">
+          <circle id="cR" cx="270" cy="150" r="58" fill="#5C728C" stroke="#1E3A5F" stroke-width="3"/>
+          <circle id="cRc" cx="270" cy="150" r="8" fill="#1E3A5F"/>
+          <g id="spokesR" stroke="#3E5470" stroke-width="2">
+            <line id="sR1" x1="270" y1="96" x2="270" y2="204"/>
+            <line id="sR2" x1="216" y1="150" x2="324" y2="150"/>
+          </g>
+          <path id="arcR" d="M 270 78 A 72 72 0 0 0 204 128" fill="none" stroke="#C9A227" stroke-width="3" marker-end="url(#arrow)"/>
+        </g>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#C9A227"/>
+          </marker>
+        </defs>
+        <!-- cota de separación -->
+        <line id="gapL1" x1="208" y1="150" x2="208" y2="235" stroke="#C9A227" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <line id="gapL2" x1="212" y1="150" x2="212" y2="235" stroke="#C9A227" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text id="gapLabel" x="210" y="252" text-anchor="middle" font-size="14" font-weight="bold" fill="#1E3A5F">b = 0.30 mm</text>
+        <!-- producto -->
+        <g id="prodStream"></g>
+        <text id="prodLabel" x="210" y="292" text-anchor="middle" font-size="13" fill="#1E3A5F">Producto</text>
+      </svg>
+
+      <div class="control" style="margin-top:14px;">
+        <label for="gap">Separación entre cilindros, <em>b</em> <output id="gapOut">0.30 mm</output></label>
+        <input type="range" id="gap" min="0.10" max="2.00" step="0.01" value="0.30"
+               aria-describedby="gapHint">
+        <div class="hint" id="gapHint">Rango típico: 0.10–0.30 mm (pasadas de reducción) · 0.6–2.0 mm (trituración)</div>
+      </div>
+
+      <div class="control">
+        <label for="flow">Caudal de alimentación, <em>Q</em> <output id="flowOut">1.0 t/h</output></label>
+        <input type="range" id="flow" min="0.5" max="2.0" step="0.1" value="1.0">
+        <div class="hint">Controlado por el alimentador dosificador (independiente de <em>b</em> en este modelo)</div>
+      </div>
+    </section>
+
+    <!-- RESULTADOS -->
+    <section class="card">
+      <h2>Resultados de la simulación</h2>
+      <div class="indicators">
+        <div class="ind">
+          <div class="val" id="powerVal">—</div><span class="unit">kW</span>
+          <div class="name">Potencia consumida</div>
+        </div>
+        <div class="ind">
+          <div class="val" id="d80Val">—</div><span class="unit">µm</span>
+          <div class="name">d₈₀ del producto</div>
+        </div>
+        <div class="ind">
+          <div class="val" id="finesVal">—</div><span class="unit">%</span>
+          <div class="name">Fracción &lt; 150 µm (harina)</div>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <span class="badge" id="prodBadge">—</span>
+        <span style="font-size:.85rem;color:#666;margin-left:8px;">Energía específica: <b id="eSpec">—</b> kWh/t · Razón de reducción: <b id="rr">—</b></span>
+      </div>
+      <canvas id="chart" width="560" height="360" aria-label="Gráfica de potencia y tamaño de partícula contra separación"></canvas>
+      <div class="hint" style="text-align:center;">Mueve el deslizador y observa el punto de operación (●) sobre ambas curvas.</div>
+    </section>
+
+    <!-- REGISTRO DE DATOS -->
+    <section class="card full">
+      <h2>Registro experimental</h2>
+      <p style="font-size:.9rem;">Registra al menos <b>6 puntos</b> variando <em>b</em> en todo el rango. Después exporta tus datos y grafícalos en Excel para tu reporte.</p>
+      <div class="btnrow">
+        <button id="btnAdd">Registrar punto actual</button>
+        <button id="btnCSV" class="secondary">Descargar CSV</button>
+        <button id="btnClear" class="secondary">Borrar tabla</button>
+      </div>
+      <table id="dataTable">
+        <thead>
+          <tr><th>#</th><th>b (mm)</th><th>Q (t/h)</th><th>P (kW)</th><th>E (kWh/t)</th><th>d₈₀ (µm)</th><th>Harina &lt;150 µm (%)</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- MODELO -->
+    <section class="card full">
+      <h2>Modelo y supuestos</h2>
+      <details open>
+        <summary>Ecuaciones utilizadas (modelo didáctico)</summary>
+        <div class="eq"><b>1. Tamaño de producto:</b> d₈₀ = 0.8 · b &nbsp;&nbsp;(las partículas salen ligeramente menores que la separación por el efecto combinado de compresión y cizalla del diferencial de velocidad).</div>
+        <div class="eq"><b>2. Ley de Bond:</b> E = 10 · W<sub>i</sub> · (1/√d₈₀ − 1/√F₈₀) &nbsp;[kWh/t], con W<sub>i</sub> = 12 kWh/t (valor didáctico para trigo), F₈₀ = 4000 µm.</div>
+        <div class="eq"><b>3. Potencia:</b> P = E · Q + P₀, con P₀ = 0.5 kW (pérdidas mecánicas en vacío).</div>
+        <div class="eq"><b>4. Distribución granulométrica:</b> log-normal con σ<sub>g</sub> = 1.5; la fracción de harina se calcula como el porcentaje acumulado que pasa 150 µm (malla 100).</div>
+        <p class="hint">⚠ Los valores de W<sub>i</sub>, el factor 0.8 y σ<sub>g</sub> son parámetros del modelo con fines de enseñanza; en un molino industrial se determinan experimentalmente y dependen de la humedad del grano, el estriado de los rodillos y la relación de velocidades.</p>
+      </details>
+    </section>
+
+    <!-- PREGUNTAS -->
+    <section class="card full">
+      <h2>Preguntas de análisis (evaluación formativa)</h2>
+      <ol class="preguntas">
+        <li>¿Por qué la potencia aumenta de forma <b>no lineal</b> al reducir la separación? Relaciónalo con la forma de la ley de Bond.</li>
+        <li>A partir de tus datos registrados, ¿cuál es la separación máxima que todavía produce ≥ 80 % de harina (&lt; 150 µm)? ¿Qué implicación energética tiene operar por debajo de ese valor?</li>
+        <li>En un molino harinero real la molienda se hace en <b>varias pasadas</b> (trituración B y reducción C) en lugar de una sola con separación mínima. Con base en la curva de potencia, justifica esta estrategia.</li>
+        <li>Si el caudal se duplica, ¿cómo cambia la potencia y por qué la energía específica (kWh/t) permanece constante en este modelo? ¿Sería así en el equipo real?</li>
+      </ol>
+    </section>
+
+    <!-- REFERENCIAS -->
+    <section class="card full">
+      <h2>Referencias</h2>
+      <p class="ref">Bond, F. C. (1952). The third theory of comminution. <i>Transactions of the American Institute of Mining and Metallurgical Engineers, 193</i>, 484–494.</p>
+      <p class="ref">Brennan, J. G., &amp; Grandison, A. S. (Eds.). (2012). <i>Food processing handbook</i> (2nd ed.). Wiley-VCH.</p>
+      <p class="ref">Fellows, P. J. (2017). <i>Food processing technology: Principles and practice</i> (4th ed.). Woodhead Publishing.</p>
+      <p class="ref">Geankoplis, C. J. (2006). <i>Procesos de transporte y principios de procesos de separación</i> (4.ª ed.). Grupo Editorial Patria.</p>
+      <p class="ref">McCabe, W. L., Smith, J. C., &amp; Harriott, P. (2007). <i>Operaciones unitarias en ingeniería química</i> (7.ª ed.). McGraw-Hill.</p>
+      <p class="ref">Ortega-Rivas, E. (2012). <i>Unit operations of particulate solids: Theory and practice</i>. CRC Press.</p>
+      <p class="ref">Posner, E. S., &amp; Hibbs, A. N. (2005). <i>Wheat flour milling</i> (2nd ed.). AACC International.</p>
+      <p class="hint" style="margin-top:8px;">Formato APA 7.ª edición. Verifica la edición disponible en la Biblioteca de la FCB antes de citar en tu reporte.</p>
+    </section>
+  </div>
+</main>
+
+<footer>
+  Simulador didáctico elaborado por el Dr. Juan Gabriel Báez González · Operaciones Unitarias · Facultad de Ciencias Biológicas, UANL
+</footer>
+
+<script>
+(function(){
+  // ---------- Modelo ----------
+  const Wi = 12;        // kWh/t (didáctico)
+  const F80 = 4000;     // µm
+  const P0 = 0.5;       // kW en vacío
+  const K = 0.8;        // d80 = K * b
+  const SG = 1.5;       // desv. geométrica log-normal
+  const CUT = 150;      // µm, criterio de harina
+
+  function d80(b){ return K * b * 1000; }                 // µm
+  function eSpec(b){ return 10*Wi*(1/Math.sqrt(d80(b)) - 1/Math.sqrt(F80)); } // kWh/t
+  function power(b,Q){ return eSpec(b)*Q + P0; }          // kW
+  // Φ normal estándar
+  function phi(z){ return 0.5*(1+erf(z/Math.SQRT2)); }
+  function erf(x){
+    const s = x<0?-1:1; x=Math.abs(x);
+    const t = 1/(1+0.3275911*x);
+    const y = 1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);
+    return s*y;
+  }
+  function finesPct(b){
+    const d50 = d80(b)/Math.exp(0.8416*Math.log(SG));
+    return 100*phi(Math.log(CUT/d50)/Math.log(SG));
+  }
+
+  // ---------- Referencias UI ----------
+  const $ = id => document.getElementById(id);
+  const gapIn=$('gap'), flowIn=$('flow');
+  const state = {rows:[]};
+
+  function classify(d){
+    if(d<=180) return {t:'HARINA', c:'harina'};
+    if(d<=600) return {t:'SÉMOLA / SEMOLINA', c:'semola'};
+    return {t:'TRIGO TRITURADO', c:'triturado'};
+  }
+
+  // ---------- SVG dinámico ----------
+  function updateSVG(b){
+    // separación visual: 4 px por cada 0 mm hasta 26 px a 2 mm
+    const px = 4 + (b/2)*22;
+    const xR = 210 + px/2 + 58;   // centro rodillo derecho
+    const xL = 210 - px/2 - 58;
+    moveRoll('rollL', xL); moveRoll('rollR', xR);
+    $('gapL1').setAttribute('x1',210-px/2); $('gapL1').setAttribute('x2',210-px/2);
+    $('gapL2').setAttribute('x1',210+px/2); $('gapL2').setAttribute('x2',210+px/2);
+    $('gapLabel').textContent = 'b = '+b.toFixed(2)+' mm';
+    drawParticles(b);
+  }
+  function moveRoll(id,cx){
+    const g=$(id);
+    const dx = cx - (id==='rollL'?150:270);
+    g.setAttribute('transform','translate('+dx+',0)');
+  }
+  function drawParticles(b){
+    const feed=$('feedStream'), prod=$('prodStream');
+    feed.innerHTML=''; prod.innerHTML='';
+    for(let i=0;i<6;i++){
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',200+Math.random()*20);
+      c.setAttribute('cy',75+Math.random()*15);
+      c.setAttribute('r',4);
+      c.setAttribute('fill','#C9A227');
+      feed.appendChild(c);
+    }
+    const rp = Math.max(0.7, 4*(d80(b)/3200)); // radio proporcional
+    for(let i=0;i<14;i++){
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',195+Math.random()*30);
+      c.setAttribute('cy',218+Math.random()*18);
+      c.setAttribute('r',rp.toFixed(2));
+      c.setAttribute('fill','#E8D48A');
+      c.setAttribute('stroke','#C9A227');
+      c.setAttribute('stroke-width','0.4');
+      prod.appendChild(c);
+    }
+  }
+
+  // ---------- Gráfica ----------
+  const cv=$('chart'), ctx=cv.getContext('2d');
+  const M={l:58,r:64,t:24,b:44};
+  const bMin=0.10,bMax=2.00;
+  function pMaxCalc(){ return power(bMin,2.0)*1.05; }
+  function draw(bNow,Q){
+    const W=cv.width,H=cv.height, pw=W-M.l-M.r, ph=H-M.t-M.b;
+    const pMax=power(bMin,Q)*1.1, dMax=d80(bMax)*1.05;
+    const X=b=>M.l+pw*(b-bMin)/(bMax-bMin);
+    const Y1=p=>M.t+ph*(1-p/pMax);
+    const Y2=d=>M.t+ph*(1-d/dMax);
+    ctx.clearRect(0,0,W,H);
+    // ejes
+    ctx.strokeStyle='#999';ctx.lineWidth=1;
+    ctx.strokeRect(M.l,M.t,pw,ph);
+    ctx.fillStyle='#555';ctx.font='12px Calibri';
+    // ticks X
+    for(let b=0.2;b<=2.001;b+=0.3){
+      const x=X(b);
+      ctx.beginPath();ctx.moveTo(x,M.t+ph);ctx.lineTo(x,M.t+ph+4);ctx.stroke();
+      ctx.textAlign='center';ctx.fillText(b.toFixed(1),x,M.t+ph+18);
+    }
+    ctx.font='bold 13px Calibri';ctx.fillStyle='#1E3A5F';
+    ctx.fillText('Separación b (mm)',M.l+pw/2,H-8);
+    // ticks Y izq (potencia)
+    ctx.font='12px Calibri';ctx.fillStyle='#1E3A5F';ctx.textAlign='right';
+    for(let i=0;i<=4;i++){
+      const p=pMax*i/4, y=Y1(p);
+      ctx.fillText(p.toFixed(0),M.l-8,y+4);
+    }
+    // ticks Y der (d80)
+    ctx.fillStyle='#8A6D00';ctx.textAlign='left';
+    for(let i=0;i<=4;i++){
+      const d=dMax*i/4, y=Y2(d);
+      ctx.fillText(d.toFixed(0),M.l+pw+8,y+4);
+    }
+    // etiquetas ejes Y
+    ctx.save();ctx.translate(14,M.t+ph/2);ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center';ctx.font='bold 13px Calibri';ctx.fillStyle='#1E3A5F';
+    ctx.fillText('Potencia P (kW)',0,0);ctx.restore();
+    ctx.save();ctx.translate(W-12,M.t+ph/2);ctx.rotate(Math.PI/2);
+    ctx.textAlign='center';ctx.font='bold 13px Calibri';ctx.fillStyle='#8A6D00';
+    ctx.fillText('d₈₀ (µm)',0,0);ctx.restore();
+    // zona harina (d80<=150 -> b<=0.1875)
+    const bCut=CUT/(K*1000);
+    if(bCut>bMin){
+      ctx.fillStyle='rgba(201,162,39,0.12)';
+      ctx.fillRect(M.l,M.t,X(bCut)-M.l,ph);
+    }
+    // curva potencia
+    ctx.strokeStyle='#1E3A5F';ctx.lineWidth=2.5;ctx.beginPath();
+    for(let i=0;i<=200;i++){
+      const b=bMin+(bMax-bMin)*i/200;
+      const x=X(b),y=Y1(power(b,Q));
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    }
+    ctx.stroke();
+    // curva d80
+    ctx.strokeStyle='#C9A227';ctx.lineWidth=2.5;ctx.setLineDash([7,4]);ctx.beginPath();
+    for(let i=0;i<=200;i++){
+      const b=bMin+(bMax-bMin)*i/200;
+      const x=X(b),y=Y2(d80(b));
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    }
+    ctx.stroke();ctx.setLineDash([]);
+    // puntos de operación
+    dot(X(bNow),Y1(power(bNow,Q)),'#1E3A5F');
+    dot(X(bNow),Y2(d80(bNow)),'#C9A227');
+    // leyenda
+    ctx.font='12px Calibri';ctx.textAlign='left';
+    ctx.strokeStyle='#1E3A5F';ctx.lineWidth=2.5;
+    line(M.l+10,M.t+14,M.l+34,M.t+14);
+    ctx.fillStyle='#1E3A5F';ctx.fillText('Potencia',M.l+40,M.t+18);
+    ctx.strokeStyle='#C9A227';ctx.setLineDash([7,4]);
+    line(M.l+110,M.t+14,M.l+134,M.t+14);ctx.setLineDash([]);
+    ctx.fillStyle='#8A6D00';ctx.fillText('d₈₀',M.l+140,M.t+18);
+    ctx.fillStyle='rgba(201,162,39,0.5)';
+    ctx.fillRect(M.l+180,M.t+7,14,10);
+    ctx.fillStyle='#8A6D00';ctx.fillText('zona harina (d₈₀ ≤ 150 µm)',M.l+199,M.t+16);
+    function dot(x,y,c){
+      ctx.beginPath();ctx.arc(x,y,6,0,7);ctx.fillStyle=c;ctx.fill();
+      ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.stroke();
+    }
+    function line(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+  }
+
+  // ---------- Actualización ----------
+  function update(){
+    const b=parseFloat(gapIn.value), Q=parseFloat(flowIn.value);
+    $('gapOut').textContent=b.toFixed(2)+' mm';
+    $('flowOut').textContent=Q.toFixed(1)+' t/h';
+    const d=d80(b), P=power(b,Q), E=eSpec(b), f=finesPct(b);
+    $('powerVal').textContent=P.toFixed(2);
+    $('d80Val').textContent=d.toFixed(0);
+    $('finesVal').textContent=f.toFixed(1);
+    $('eSpec').textContent=E.toFixed(2);
+    $('rr').textContent=(F80/d).toFixed(1)+' : 1';
+    const cl=classify(d);
+    const bd=$('prodBadge'); bd.textContent=cl.t; bd.className='badge '+cl.c;
+    updateSVG(b);
+    draw(b,Q);
+  }
+  gapIn.addEventListener('input',update);
+  flowIn.addEventListener('input',update);
+
+  // ---------- Tabla / CSV ----------
+  $('btnAdd').addEventListener('click',()=>{
+    const b=parseFloat(gapIn.value), Q=parseFloat(flowIn.value);
+    state.rows.push({
+      b:b.toFixed(2), Q:Q.toFixed(1),
+      P:power(b,Q).toFixed(2), E:eSpec(b).toFixed(2),
+      d:d80(b).toFixed(0), f:finesPct(b).toFixed(1)
+    });
+    renderTable();
+  });
+  $('btnClear').addEventListener('click',()=>{state.rows=[];renderTable();});
+  $('btnCSV').addEventListener('click',()=>{
+    if(!state.rows.length){alert('Registra al menos un punto antes de exportar.');return;}
+    let csv='n,b_mm,Q_t_h,P_kW,E_kWh_t,d80_um,harina_menor150um_pct\n';
+    state.rows.forEach((r,i)=>{csv+=[i+1,r.b,r.Q,r.P,r.E,r.d,r.f].join(',')+'\n';});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download='molino_cilindros_datos.csv';
+    a.click();
+  });
+  function renderTable(){
+    const tb=document.querySelector('#dataTable tbody');
+    tb.innerHTML=state.rows.map((r,i)=>
+      `<tr><td>${i+1}</td><td>${r.b}</td><td>${r.Q}</td><td>${r.P}</td><td>${r.E}</td><td>${r.d}</td><td>${r.f}</td></tr>`
+    ).join('');
+  }
+
+  update();
+})();
+</script>
+</body>
+</html>
