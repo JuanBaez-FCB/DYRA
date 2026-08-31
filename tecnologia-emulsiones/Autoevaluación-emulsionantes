@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autoevaluación · Tecnología de Emulsiones</title>
+<style>
+  :root {
+    --navy: #1E3A5F;
+    --navy-dark: #142A45;
+    --gold: #C9A227;
+    --cream: #F7F6F2;
+    --gray-bg: #F4F6F8;
+    --dark: #1A1A2E;
+    --green: #2E7D32;
+    --green-bg: #E8F5E9;
+    --red: #C0392B;
+    --red-bg: #FDECEA;
+    --border-gray: #D1D9E0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Calibri, system-ui, -apple-system, Arial, sans-serif;
+    background: linear-gradient(135deg, #eef2f6 0%, #e4e9ef 100%);
+    min-height: 100vh;
+    color: var(--dark);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 12px;
+  }
+  .wrapper { width: 100%; max-width: 760px; }
+  .hidden { display: none !important; }
+  .fade-in { animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  header.app-header { text-align: center; margin-bottom: 24px; }
+  header.app-header h1 {
+    font-family: Georgia, Cambria, serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  header.app-header .course-name { font-size: 1rem; color: #555; margin-top: 4px; }
+  header.app-header .subtitle { font-size: 0.85rem; color: #777; margin-top: 4px; }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 14px rgba(30, 58, 95, 0.10);
+    padding: 28px 24px;
+  }
+  @media (min-width: 640px) { .card { padding: 34px 36px; } }
+
+  .card h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 14px;
+  }
+  .card h2.results-title { font-size: 1.5rem; text-align: center; margin-bottom: 4px; }
+
+  .intro-text { font-size: 0.92rem; color: #444; margin-bottom: 22px; }
+  .intro-text p { margin-bottom: 10px; }
+  .intro-text ul { list-style: disc; padding-left: 22px; }
+  .intro-text li { margin-bottom: 6px; }
+  .intro-text strong { color: var(--navy); }
+
+  form.login-form label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  form.login-form .required { color: var(--red); }
+  form.login-form input[type="text"] {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.92rem;
+    margin-bottom: 16px;
+    font-family: inherit;
+  }
+  form.login-form input[type="text"]:focus {
+    outline: none;
+    border-color: var(--navy);
+    box-shadow: 0 0 0 2px rgba(30,58,95,0.15);
+  }
+  #login-error {
+    font-size: 0.85rem;
+    color: var(--red);
+    margin-bottom: 14px;
+  }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    font-size: 0.92rem;
+    border: none;
+  }
+  .btn-primary {
+    background-color: var(--navy);
+    color: #fff;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: 600;
+    width: 100%;
+    transition: background-color 0.15s ease;
+  }
+  .btn-primary:hover:not(:disabled) { background-color: var(--navy-dark); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary.inline { width: auto; }
+
+  .btn-secondary {
+    background-color: #fff;
+    color: var(--navy);
+    border: 1.5px solid var(--navy);
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: 600;
+  }
+  .btn-secondary:hover { background-color: var(--gray-bg); }
+
+  /* QUIZ SCREEN */
+  .quiz-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+  }
+  #quiz-progress-label { font-weight: 600; color: #555; }
+  #quiz-score-label { color: #888; }
+
+  .progress-track {
+    width: 100%;
+    background-color: #e5e9ed;
+    border-radius: 999px;
+    height: 8px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background-color: var(--gold);
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+
+  #question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  .option-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #fff;
+    border: 1.5px solid var(--border-gray);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.92rem;
+    margin-bottom: 12px;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+    color: var(--dark);
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--navy);
+    background-color: #f0f4f8;
+  }
+  .option-correct {
+    background-color: var(--green-bg) !important;
+    border-color: var(--green) !important;
+    color: #1b5e20 !important;
+  }
+  .option-incorrect {
+    background-color: var(--red-bg) !important;
+    border-color: var(--red) !important;
+    color: #7f1d1d !important;
+  }
+  .option-disabled-other { opacity: 0.5; }
+
+  .feedback-box {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .feedback-box.correct { background-color: var(--green-bg); color: #1b5e20; }
+  .feedback-box.incorrect { background-color: var(--red-bg); color: #7f1d1d; }
+
+  .quiz-actions { margin-top: 22px; display: flex; justify-content: flex-end; }
+
+  /* RESULTS SCREEN */
+  #results-student { text-align: center; font-size: 0.9rem; color: #666; margin-bottom: 22px; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (min-width: 640px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+  .stat-box {
+    background-color: var(--gray-bg);
+    border-radius: 10px;
+    padding: 14px 8px;
+    text-align: center;
+  }
+  .stat-box .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--navy); }
+  .stat-box .stat-label { font-size: 0.72rem; color: #777; margin-top: 4px; }
+
+  .note-local {
+    font-size: 0.78rem;
+    color: #888;
+    font-style: italic;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+
+  h3.results-subtitle { font-size: 1rem; font-weight: 600; color: var(--navy); margin-bottom: 12px; }
+
+  .results-table-wrap {
+    max-height: 420px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 24px;
+  }
+  table.results-table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  table.results-table th, table.results-table td {
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.82rem;
+  }
+  table.results-table th {
+    background-color: var(--navy);
+    color: #fff;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+  }
+  table.results-table tr.row-wrong { background-color: #fffaf9; }
+  .ans-correct-text { color: #1b5e20; }
+  .ans-wrong-text { color: #7f1d1d; }
+  .justif-text { color: #555; }
+
+  .results-actions { display: flex; justify-content: center; }
+
+  footer.app-footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 28px;
+    padding-bottom: 12px;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #b8c2cc; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <header class="app-header">
+    <h1>Autoevaluación · Tecnología de Emulsiones</h1>
+    <p class="course-name">[NOMBRE DEL CURSO]</p>
+    <p class="subtitle">Fase 1 · Clasificación de Emulsionantes por HLB</p>
+    <p class="subtitle">Responsable: Dr. Juan Gabriel Báez González · FCB-UANL</p>
+  </header>
+
+  <!-- ============ PANTALLA 1: DATOS DEL ESTUDIANTE ============ -->
+  <section id="screen-login" class="card fade-in">
+    <h2>Antes de comenzar</h2>
+    <div class="intro-text">
+      <p>Esta es una evaluación <strong>formativa y de práctica personal</strong>, diseñada para ayudarte a repasar los conceptos vistos en la presentación de clasificación de emulsionantes.</p>
+      <ul>
+        <li>Se seleccionarán <strong>10 preguntas al azar</strong> de un banco más amplio.</li>
+        <li>El orden de las opciones también se mezcla en cada intento.</li>
+        <li>Verás la respuesta correcta y su justificación después de cada pregunta.</li>
+        <li>Puedes repetir la evaluación tantas veces como quieras.</li>
+        <li>No hay opción de descarga ni exportación: es solo para tu práctica.</li>
+      </ul>
+    </div>
+
+    <form id="login-form" class="login-form" autocomplete="off">
+      <label for="input-name">Nombre completo <span class="required">*</span></label>
+      <input type="text" id="input-name" placeholder="Ej. Ana María Torres López">
+
+      <label for="input-matricula">Matrícula <span class="required">*</span></label>
+      <input type="text" id="input-matricula" placeholder="Ej. 1234567">
+
+      <p id="login-error" class="hidden">Por favor completa ambos campos para continuar.</p>
+
+      <button type="submit" class="btn-primary">Comenzar evaluación</button>
+    </form>
+  </section>
+
+  <!-- ============ PANTALLA 2: QUIZ ============ -->
+  <section id="screen-quiz" class="card hidden">
+    <div class="quiz-top-row">
+      <span id="quiz-progress-label">Pregunta 1/10</span>
+      <span id="quiz-score-label">Aciertos: 0</span>
+    </div>
+    <div class="progress-track">
+      <div id="progress-bar" class="progress-fill" style="width: 10%;"></div>
+    </div>
+
+    <h2 id="question-text"></h2>
+
+    <div id="options-container"></div>
+
+    <div id="feedback-box" class="feedback-box hidden fade-in"></div>
+
+    <div class="quiz-actions">
+      <button id="btn-next" class="btn-primary inline hidden">Siguiente pregunta →</button>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA 3: RESULTADOS ============ -->
+  <section id="screen-results" class="card hidden fade-in">
+    <h2 class="results-title">Resultados</h2>
+    <p id="results-student"></p>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <p class="stat-value" id="results-score">0/10</p>
+        <p class="stat-label">Aciertos</p>
+      </div>
+      <div class="stat-box">
+        <p class="stat-value" id="results-percent">0%</p>
+        <p class="stat-label">Calificación</p>
+      </div>
+      <div class="stat-box">
+        <p class="stat-value" id="results-time">0:00</p>
+        <p class="stat-label">Tiempo empleado</p>
+      </div>
+      <div class="stat-box">
+        <p class="stat-value" id="results-attempt">#1</p>
+        <p class="stat-label">Intento (este navegador)</p>
+      </div>
+    </div>
+
+    <p class="note-local">
+      * El contador de intentos se guarda localmente en este navegador (localStorage), asociado a tu matrícula. Si usas otro dispositivo o navegador, o borras los datos del sitio, el conteo reinicia.
+    </p>
+
+    <h3 class="results-subtitle">Detalle de tus respuestas</h3>
+    <div class="results-table-wrap">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th style="width: 4%;">#</th>
+            <th style="width: 26%;">Pregunta</th>
+            <th style="width: 18%;">Tu respuesta</th>
+            <th style="width: 18%;">Respuesta correcta</th>
+            <th style="width: 34%;">Justificación</th>
+          </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+
+    <div class="results-actions">
+      <button id="btn-restart" class="btn-primary inline">Repetir evaluación</button>
+    </div>
+  </section>
+
+  <footer class="app-footer">
+    Evaluación formativa de práctica personal · Tecnología de Emulsiones · FCB-UANL
+  </footer>
+
+</div>
+
+<script>
+// ============================================================
+// BANCO DE PREGUNTAS (extraído de la presentación PPT del curso)
+// ============================================================
+const QUESTION_BANK = [{"id": 1, "question": "Según la ecuación de Davies mencionada en la presentación, ¿cómo se calcula el HLB de un emulsionante?", "options": ["HLB = 7 + Σ(grupos hidrófilos) − Σ(grupos lipófilos)", "HLB = 20 × (Mh / M)", "HLB = tensión interfacial / concentración micelar crítica", "HLB = 7 − Σ(grupos hidrófilos) + Σ(grupos lipófilos)"], "correct": 0, "justification": "Las notas de la diapositiva 4 indican explícitamente la ecuación de Davies: HLB = 7 + Σ(grupos hidrófilos) − Σ(grupos lipófilos), usada para estimar el balance hidrófilo-lipófilo de una molécula emulsionante."}, {"id": 2, "question": "¿Qué tipo de emulsión favorecen los emulsionantes con HLB en el rango de 3 a 6?", "options": ["O/W (aceite en agua)", "W/O (agua en aceite)", "Emulsiones múltiples W/O/W", "Ninguna, son solo humectantes"], "correct": 1, "justification": "La diapositiva 4 clasifica el rango HLB 3–6 como la zona que favorece emulsiones W/O (agua en aceite), representada por ejemplos como el monoestearato de glicerol (HLB 3.8) y el Span 80 (HLB 4.3)."}, {"id": 3, "question": "De acuerdo con la presentación, ¿qué rango de HLB corresponde a la zona de 'humectantes o transición', donde las emulsiones tienden a ser inestables?", "options": ["0–2", "3–6", "7–11", ">11"], "correct": 2, "justification": "La diapositiva 4 y la nota de la tabla resumen (diapositiva 17) señalan que el rango HLB 7–9 (dentro de 7–11) es zona de humectantes, donde las emulsiones formadas tienden a ser inestables por baja tensión interfacial."}, {"id": 4, "question": "¿Cuál es el emulsionante sintético más ampliamente usado en la industria alimentaria, según la presentación?", "options": ["Polisorbato 80", "Lecitina de soya", "Mono- y diacilgliceroles", "Estearoil lactilato de sodio (SSL)"], "correct": 2, "justification": "La diapositiva 5 indica que los mono- y diacilgliceroles son 'los emulsionantes sintéticos más usados en la industria alimentaria', con más de 500,000 toneladas producidas anualmente según las notas del presentador."}, {"id": 5, "question": "¿Por qué los monoacilgliceroles presentan mayor actividad superficial que los diacilgliceroles?", "options": ["Porque tienen mayor peso molecular", "Porque poseen 2 grupos −OH libres", "Porque son aniónicos", "Porque contienen ácido láctico"], "correct": 1, "justification": "La diapositiva 5 explica que los monoacilgliceroles contienen 2 grupos −OH libres, lo que les confiere mayor actividad superficial en comparación con los diacilgliceroles."}, {"id": 6, "question": "¿Cuál es el método de síntesis comercial de mono/diglicéridos descrito como 'más económico' en la presentación?", "options": ["Esterificación directa con ácido graso", "Glicerólisis (interesterificación) con Ca(OH)₂", "Síntesis enzimática con lipasa", "Etoxilación con óxido de etileno"], "correct": 1, "justification": "La diapositiva 5 y sus notas indican que la glicerólisis (grasa + glicerol + Ca(OH)₂) es más económica porque las grasas son más baratas que los ácidos grasos."}, {"id": 7, "question": "¿Qué modificación estructural distingue al ACETEM (Acetylated Monoglycerides) del monoglicérido base?", "options": ["Adición de ácido láctico al grupo polar", "Acetilación, que reduce la hidrofilicidad", "Adición de óxido de etileno", "Sustitución del glicerol por sorbitol"], "correct": 1, "justification": "La diapositiva 6 indica que la acetilación en ACETEM reduce la hidrofilicidad del monoglicérido, y que este derivado es un excelente formador de películas usado en coberturas y films comestibles."}, {"id": 8, "question": "Según la diapositiva sobre derivados de monoacilgliceroles, ¿en qué aplicación se usa principalmente LACTEM (Lactylated Monoglycerides)?", "options": ["Films comestibles y coberturas de confitería", "Panificación y productos lácteos reconstituidos", "Bebidas carbonatadas", "Detergentes industriales"], "correct": 1, "justification": "La diapositiva 6 señala que LACTEM se aplica en panificación y productos lácteos reconstituidos, ya que el ácido láctico agranda el grupo polar manteniendo el carácter no iónico de la molécula."}, {"id": 9, "question": "¿Qué materia prima se hace reaccionar con ácido esteárico para producir ésteres de sorbitán (Spans)?", "options": ["Glicerol", "Sorbitol", "Sacarosa", "Poliglicerol"], "correct": 1, "justification": "La diapositiva 7 describe la síntesis de los Spans como: 'Sorbitol + ác. esteárico → ciclización/deshidratación simultánea a altas T° (N₂)', formando una mezcla compleja de sorbitol, sorbitán e isosorbida."}, {"id": 10, "question": "¿Cuál de los siguientes ésteres de sorbitán tiene, según la tabla de la presentación, el HLB más bajo?", "options": ["Span 20 (8.6)", "Span 40 (6.7)", "Span 65 (2.1)", "Span 80 (4.3)"], "correct": 2, "justification": "La tabla de nomenclatura de ésteres de sorbitán en la diapositiva 7 muestra que Span 65 (sorbitán triestearato) tiene un HLB de 2.1, el más bajo de los listados."}, {"id": 11, "question": "¿Cuál es el uso principal del Span 80 (sorbitán monooleato) mencionado en la presentación?", "options": ["Emulsionante final aprobado de forma independiente en alimentos", "Intermedio para la producción de Polisorbato 80", "Fortalecedor de masa en panificación", "Agente quelante de metales prooxidantes"], "correct": 1, "justification": "La diapositiva 7 indica que Span 80 sirve como intermedio para Polisorbato 80 y aclara que no está aprobado para uso alimentario por sí solo, aunque su derivado etoxilado (Polisorbato 80) sí lo está."}, {"id": 12, "question": "¿Cuál es la función principal de DATEM en panificación, según la presentación?", "options": ["Actuar como antioxidante quelante de metales", "Fortalecimiento de masa y retención de gas", "Controlar la aglomeración de grasa en helados", "Aumentar la viscosidad del chocolate"], "correct": 1, "justification": "La diapositiva 8 señala que DATEM se usa en pan y bollería para 'fortalecimiento de masa, retención de gas', y las notas agregan que actúa como fortalecedor de gluten."}, {"id": 13, "question": "¿Qué función adicional a la emulsificación tiene CITREM (Citric Acid Esters of Monoglycerides), según las notas de la presentación?", "options": ["Formador de espuma en pasteles", "Quelante de metales prooxidantes (antioxidante indirecto)", "Agente de peso en bebidas cítricas", "Inhibidor de la cristalización de grasas"], "correct": 1, "justification": "Las notas de la diapositiva 8 explican que CITREM tiene doble función: emulsionante y quelante de Fe y Cu, actuando como antioxidante indirecto; se usa en fórmulas infantiles, chocolate y salsas."}, {"id": 14, "question": "¿Cuál es el HLB de SMG (Succinylated Monoglycerides) reportado en la Tabla 13.5 de Hasenhuettl & Hartel, según la presentación?", "options": ["2.1", "5.3", "9.2", "14.9"], "correct": 1, "justification": "La diapositiva 8 indica explícitamente: 'HLB de SMG = 5.3 (Tabla 13.5, Hasenhuettl & Hartel, 2008)'."}, {"id": 15, "question": "En la síntesis de ésteres de poliglicerol, ¿qué controla principalmente el HLB del producto final?", "options": ["La temperatura de almacenamiento", "El grado de esterificación (ratio ácido graso/poliglicerol)", "El tipo de catalizador ácido usado", "La presión de la reacción"], "correct": 1, "justification": "La diapositiva 9 indica que en la segunda etapa de síntesis (esterificación), el grado de esterificación entre poliglicerol y ácidos grasos controla el HLB, que puede variar desde ~3 hasta ~13."}, {"id": 16, "question": "Según la presentación, ¿cuál es el grado de polimerización máximo aprobado para ésteres de poliglicerol en la Unión Europea?", "options": ["2", "4", "10", "16"], "correct": 1, "justification": "La diapositiva 9 señala: 'Grado de polimerización máximo aprobado: 10 (EE.UU.) vs. 4 (UE)', mostrando una diferencia regulatoria entre ambas regiones."}, {"id": 17, "question": "¿Con qué ácido graso reacciona el poliglicerol para producir PGPR (poliglicerol poliricinoleato)?", "options": ["Ácido esteárico", "Ácido oleico", "Ácido ricinoleico", "Ácido láurico"], "correct": 2, "justification": "La diapositiva 9 explica que el PGPR se produce por reacción de poliglicerol con ácido ricinoleico (del aceite de ricino), cuyo grupo −OH en la cadena permite esterificación bifuncional."}, {"id": 18, "question": "¿Cuál es la aplicación principal del PGPR mencionada en la presentación?", "options": ["Fortalecimiento de masa en pan", "Control de viscosidad en chocolate", "Estabilización de espuma en pasteles", "Antioxidante en fórmulas infantiles"], "correct": 1, "justification": "La diapositiva 9 lista como aplicación del PGPR (E476) el 'control de viscosidad en chocolate', además de inhibición de cristalización en aceites de ensalada y emulsiones W/O en margarinas bajas en grasa."}, {"id": 19, "question": "¿Qué reactivo se emplea para etoxilar un éster de sorbitán y producir un polisorbato?", "options": ["Ácido acético anhídrido", "Óxido de etileno", "Ácido fosfórico", "Peróxido de hidrógeno"], "correct": 1, "justification": "La diapositiva 10 describe la síntesis de polisorbatos como: 'Éster de sorbitán + óxido de etileno → cadena de polioxietileno', proceso llamado etoxilación."}, {"id": 20, "question": "¿Cuál es el subproducto carcinógeno generado en la síntesis de polisorbatos que debe eliminarse por destilación con vapor?", "options": ["1,4-dioxano", "Benceno", "Formaldehído", "Óxido de propileno"], "correct": 0, "justification": "La diapositiva 10 menciona explícitamente: 'Subproducto: 1,4-dioxano (carcinógeno); se elimina por destilación con vapor', como parte del proceso de etoxilación de los ésteres de sorbitán."}, {"id": 21, "question": "Según la tabla de nomenclatura de polisorbatos en la presentación, ¿cuál es el HLB del Polisorbato 60 (base sorbitán monoestearato)?", "options": ["9.2", "14.9", "16.7", "21.0"], "correct": 1, "justification": "La diapositiva 10 muestra en su tabla que el Polisorbato 60, con base monoestearato de sorbitán, tiene un HLB de 14.9, valor confirmado también en la tabla resumen de la diapositiva 17."}, {"id": 22, "question": "¿Qué excepción a la 'regla de Bancroft' se menciona respecto al Polisorbato 60 en aderezos cremosos?", "options": ["Se agrega en polvo en lugar de líquido", "Se agrega a la fase aceite en lugar de la fase continua para formar emulsión O/W", "Se usa sin necesidad de agitación mecánica", "Se combina siempre con SSL en proporción 1:1"], "correct": 1, "justification": "Las notas de la diapositiva 10 explican que normalmente el emulsionante se agrega a la fase continua, pero en aderezos cremosos el Polisorbato 60 se añade a la fase aceite para formar una emulsión O/W — una excepción a la regla de Bancroft."}, {"id": 23, "question": "¿Qué caracteriza el rango de HLB de los ésteres de sacarosa, según la presentación?", "options": ["Un HLB fijo de 10", "Un rango de HLB de 1 a 16, controlado por el grado de esterificación", "Un HLB siempre superior a 18", "Un HLB que no puede determinarse experimentalmente"], "correct": 1, "justification": "La diapositiva 11 indica que los ésteres de sacarosa tienen un rango de HLB de 1 a 16, donde el monoéster produce HLB alto (~16) y el hexaéster produce HLB bajo (~1), controlado por el grado de esterificación."}, {"id": 24, "question": "¿Qué es el SAIB mencionado en la diapositiva de ésteres de sacarosa y cuál es su función?", "options": ["Un emulsionante O/W para chocolate", "Un agente de peso (weighting agent) para bebidas cítricas", "Un catalizador para esterificación de sacarosa", "Un fortalecedor de gluten en panificación"], "correct": 1, "justification": "La diapositiva 11 y sus notas aclaran que el SAIB (sucrose acetate isobutyrate) no es propiamente un emulsionante, sino un agente de peso usado en emulsiones de bebidas cítricas."}, {"id": 25, "question": "¿Cuál es el HLB del SSL (Sodium Stearoyl Lactylate) reportado en la presentación, y qué lo hace tan alto?", "options": ["HLB ≈ 9.2, por su grupo carboxilo simple", "HLB ≈ 14.9, por su cadena de polioxietileno", "HLB ≈ 21.0, por la cadena de oligo-lactato más el carboxilato de sodio", "HLB ≈ 2.1, por su triple esterificación"], "correct": 2, "justification": "La diapositiva 12 indica que el SSL tiene HLB ≈ 21.0, uno de los más hidrófilos, porque la cadena de oligo-lactato (2–3 unidades) junto con el carboxilato de sodio aportan una contribución hidrofílica muy grande frente a la cola lipofílica del ácido esteárico."}, {"id": 26, "question": "¿Cuál es la diferencia estructural principal entre SSL y CSL, según la presentación?", "options": ["CSL usa ácido oleico en lugar de esteárico", "CSL tiene Ca²⁺ como contraión en lugar de Na⁺", "CSL no contiene ácido láctico", "CSL se sintetiza sin catalizador alcalino"], "correct": 1, "justification": "La diapositiva 12 señala que el CSL (Calcium Stearoyl Lactylate) tiene el 'mismo esqueleto que SSL pero con Ca²⁺ como contraión', lo que lo hace menos soluble en agua y con HLB más bajo que el SSL."}, {"id": 27, "question": "Según el esquema de la interfaz aceite/agua presentado, ¿qué combinación estructural favorece un HLB alto (emulsión O/W)?", "options": ["Cabeza pequeña + cola(s) larga(s)", "Cabeza grande + cola corta", "Dos cabezas + una cola", "Ausencia de cabeza polar"], "correct": 1, "justification": "La diapositiva 13 indica textualmente: 'Cabeza grande + cola corta → HLB alto (O/W)', en contraste con 'cabeza pequeña + cola(s) larga(s) → HLB bajo (W/O)'."}, {"id": 28, "question": "¿Qué fosfolípido predomina en la lecitina de soya, según la presentación?", "options": ["Fosfatidilcolina (PC)", "Fosfatidiletanolamina (PE)", "Fosfatidilinositol (PI)", "Fosfatidilserina (PS)"], "correct": 1, "justification": "La diapositiva 14 indica que la Fosfatidiletanolamina (PE) 'predomina en soya', mientras que la Fosfatidilcolina (PC) es 'la más común en huevo'."}, {"id": 29, "question": "¿Por qué la lecitina de huevo es especialmente eficaz en la formulación de mayonesa, según la presentación?", "options": ["Porque tiene menor costo que la lecitina de soya", "Porque es un excelente emulsionante que permite dispersar hasta 80% de aceite", "Porque no requiere purificación adicional", "Porque contiene mayor proporción de ácidos grasos insaturados que la de soya"], "correct": 1, "justification": "La diapositiva 14 señala que la lecitina de huevo es 'excelente emulsionante: la mayonesa dispersa hasta 80% aceite', consistente con lo mencionado también en la diapositiva 3 sobre ejemplos cotidianos."}, {"id": 30, "question": "¿Qué enzima se utiliza para convertir lecitina en lisolecitina, según la presentación?", "options": ["Lipasa", "Fosfolipasa A₂ (PLA₂)", "Fosfolipasa D (PLD)", "Amilasa"], "correct": 1, "justification": "La diapositiva 15 indica que la Fosfolipasa A₂ 'hidroliza el enlace éster en posición sn-2 del fosfolípido', produciendo lisolecitina (un solo ácido graso). Esto también se confirma en la pregunta P3 de la actividad Kahoot (diapositiva 23)."}, {"id": 31, "question": "¿Cómo se comparan el HLB de la lisolecitina y el de la lecitina nativa, según la presentación?", "options": ["La lisolecitina tiene HLB más bajo que la lecitina nativa", "La lisolecitina tiene HLB más alto que la lecitina nativa", "Ambas tienen el mismo HLB", "El HLB de la lisolecitina no puede determinarse"], "correct": 1, "justification": "La diapositiva 15 indica que la lisolecitina, al ser un 'surfactante de una sola cola', tiene HLB más alto que la lecitina nativa (lecitina nativa HLB 2–4 vs. lisolecitina HLB 8–12, según el resumen de 'Impacto del HLB')."}, {"id": 32, "question": "¿Qué caracteriza a las caseínas como emulsionantes, según la diapositiva de biopolímeros?", "options": ["Estructura globular rígida con baja actividad interfacial", "Estructura flexible anfifílica, excelentes en emulsiones lácteas", "Requieren modificación enzimática obligatoria antes de usarse", "Son exclusivamente aniónicas y de bajo peso molecular"], "correct": 1, "justification": "La diapositiva 16 describe a las caseínas (β-caseína, αs₁-caseína) con 'estructura flexible anfifílica; excelentes en emulsiones lácteas', a diferencia de las proteínas de suero, de estructura globular."}, {"id": 33, "question": "¿Cuál es la diferencia clave en el comportamiento interfacial entre proteínas y surfactantes de bajo peso molecular, según la presentación?", "options": ["Las proteínas se adsorben más rápido pero forman capas más delgadas", "Los surfactantes pequeños tienen adsorción rápida y capa delgada; las proteínas tienen adsorción lenta pero capa gruesa y viscoelástica", "Ambos tipos de moléculas se comportan de forma idéntica en la interfaz", "Las proteínas nunca pueden ser desplazadas por surfactantes de bajo peso molecular"], "correct": 1, "justification": "La diapositiva 16 contrasta: 'Proteínas: MW alto → adsorción lenta pero capa interfacial gruesa y viscoelástica' vs. 'Surfactantes pequeños: MW bajo → adsorción rápida, capa delgada', y menciona que las proteínas pueden ser desplazadas por surfactantes pequeños."}, {"id": 34, "question": "¿Qué es el almidón OSA mencionado entre los hidrocoloides modificados con función emulsionante?", "options": ["Almidón hidrolizado enzimáticamente con amilasa", "Almidón esterificado con octenil succinato (cadena alquílica), E1450", "Almidón oxidado con peróxido de hidrógeno", "Almidón complejado con ácido láctico"], "correct": 1, "justification": "La diapositiva 16 define el almidón OSA como 'octenil succinato: esterificado con cadena alquílica, E1450', uno de los hidrocoloides modificados con función emulsionante."}, {"id": 35, "question": "Según la tabla resumen de la presentación, ¿qué emulsionante tiene el HLB más alto de todos los listados (21.0)?", "options": ["Polisorbato 20 (Tween 20)", "Oleato de sodio", "SSL (estearoil lactilato de sodio)", "DATEM"], "correct": 2, "justification": "La tabla resumen de la diapositiva 17 lista al SSL con un HLB de 21.0, el más alto entre los 11 emulsionantes comparados, consistente con lo señalado en la diapositiva 12."}, {"id": 36, "question": "¿Qué material de construcción se recomienda para el reactor batch cuando se realiza esterificación directa con ácidos grasos fuertes?", "options": ["Acero al carbono estándar", "Acero inoxidable de alto molibdeno", "Vidrio templado", "Aluminio anodizado"], "correct": 1, "justification": "La diapositiva 18 indica que para la esterificación directa se requiere 'acero inoxidable de alto Mo', mientras que para la interesterificación (glicerólisis) se puede usar acero al carbono."}, {"id": 37, "question": "¿Cuál es la ventaja principal del reactor continuo frente al reactor batch, según la presentación?", "options": ["Es ideal para muchos productos en volúmenes pequeños", "No requiere atmósfera de nitrógeno", "Es ideal para pocos productos en grandes volúmenes, gracias al evaporador de película descendente", "Opera a temperaturas menores a 100 °C"], "correct": 2, "justification": "La diapositiva 18 contrasta que el reactor batch es 'ideal para muchos productos en volúmenes menores', mientras que el reactor continuo es 'ideal para pocos productos en grandes volúmenes', usando un evaporador de película descendente para remover el poliol excedente."}, {"id": 38, "question": "¿Cuál es la principal limitación de los biorreactores enzimáticos (lipasa/esterasa) mencionada en la presentación?", "options": ["Generan más reacciones secundarias que la catálisis química", "Requieren temperaturas superiores a 250 °C", "Alto costo enzimático y velocidad de reacción lenta", "No permiten esterificación regioespecífica"], "correct": 2, "justification": "La diapositiva 18 señala como limitación de los biorreactores el 'costo enzimático y velocidad de reacción lenta', aunque ofrecen ventajas como menor temperatura y esterificación regioespecífica (sn-1 vs. sn-2)."}, {"id": 39, "question": "Según el modelo de Israelachvili presentado, ¿qué mesofase corresponde a un parámetro de empaquetamiento crítico P < 1/3?", "options": ["Lamelar", "Vesícula", "Micela", "Hexagonal"], "correct": 2, "justification": "La diapositiva 19 indica que la mesofase Micela corresponde a P < 1/3, con forma de cono, típica de moléculas con una cola y cabeza grande (ejemplo: Tween 20)."}, {"id": 40, "question": "¿Qué tipo de estructura molecular (número de colas y tamaño de cabeza) se asocia con la mesofase lamelar en la presentación, y qué ejemplo se da?", "options": ["Una cola, cabeza grande — Tween 20", "Una cola, cabeza pequeña — monoestearato", "Dos colas, cabeza pequeña — lecitina nativa", "Dos colas, cabeza grande — fosfatidilcolina"], "correct": 2, "justification": "La diapositiva 19 indica que la mesofase lamelar (P ≈ 1) corresponde a moléculas con 'dos colas, cabeza pequeña', usando como ejemplo la lecitina nativa, con forma de cilindro."}, {"id": 41, "question": "¿Qué significa que un aditivo sea clasificado como GRAS, según se explica en las notas de la presentación?", "options": ["Que no tiene ningún límite de uso bajo ninguna circunstancia", "Que se usa conforme a buenas prácticas de manufactura, sin dosis máxima específica regulada", "Que solo puede usarse en productos de exportación", "Que requiere aprobación caso por caso de la FDA para cada lote"], "correct": 1, "justification": "Las notas de la diapositiva 20 aclaran que 'GRAS no significa sin límite, sino usados conforme a buenas prácticas de manufactura', mientras que los aditivos directos sí tienen dosis y métodos de manufactura regulados específicamente."}, {"id": 42, "question": "Según la tabla de regulación de la presentación, ¿cuál de los siguientes emulsionantes está clasificado como aditivo directo (21CFR172) y no como GRAS?", "options": ["Lecitina (E322)", "Mono y diglicéridos (E471)", "Polisorbatos 60, 65, 80", "DATEM (E472e)"], "correct": 2, "justification": "La diapositiva 20 clasifica a los polisorbatos 60, 65 y 80 dentro de los aditivos directos regulados por 21CFR172, mientras que lecitina, mono/diglicéridos y DATEM están clasificados como GRAS (21CFR184)."}, {"id": 43, "question": "¿Cuál de las siguientes es una de las tres 'ideas fuerza' presentadas al cierre de la presentación?", "options": ["El costo siempre determina la elección del emulsionante", "El HLB es la brújula: bajo favorece W/O, alto favorece O/W", "Todos los emulsionantes deben tener origen animal", "La regulación es idéntica en todos los países"], "correct": 1, "justification": "La diapositiva 21 presenta como primera idea fuerza: 'El HLB es la brújula — Bajo (3–6) → W/O (margarina); Alto (>11) → O/W (aderezos, bebidas)', resumiendo el criterio central de la clasificación estudiada."}, {"id": 44, "question": "En la actividad Kahoot de cierre de la presentación, ¿qué opción se marca como correcta para la pregunta sobre qué emulsionante fortalece la masa en panificación?", "options": ["Span 65", "DATEM", "PGPR", "SAIB"], "correct": 1, "justification": "La diapositiva 23 (actividad Kahoot, pregunta P5) marca como respuesta correcta 'DATEM', consistente con la función de fortalecedor de masa descrita en la diapositiva 8."}, {"id": 45, "question": "¿Qué ejemplo de aplicación cotidiana se menciona para el polisorbato 80 en la diapositiva introductoria de la presentación?", "options": ["Estabiliza la mayonesa dispersando hasta 80% de aceite", "Controla la aglomeración de grasa en helado", "Reduce la viscosidad del chocolate", "Fortalece la masa de pan"], "correct": 1, "justification": "La diapositiva 3 menciona como ejemplo cotidiano: 'Helado: polisorbato 80 controla aglomeración de grasa', diferenciándolo de la lecitina (mayonesa), monoglicéridos (margarina) y lecitina de soya (chocolate)."}];
+
+// ============================================================
+// ESTADO DE LA APLICACIÓN
+// ============================================================
+let studentName = '';
+let studentMatricula = '';
+let quizQuestions = [];
+let currentIndex = 0;
+let userAnswers = [];
+let score = 0;
+let startTime = null;
+let answeredCurrent = false;
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickRandomQuestions(bank, n) {
+  const shuffled = shuffleArray(bank);
+  return shuffled.slice(0, n);
+}
+
+function prepareQuizQuestions() {
+  const selected = pickRandomQuestions(QUESTION_BANK, 10);
+  return selected.map(q => {
+    const optionIndices = [0, 1, 2, 3];
+    const shuffledIndices = shuffleArray(optionIndices);
+    const shuffledOptions = shuffledIndices.map(i => q.options[i]);
+    const newCorrectIndex = shuffledIndices.indexOf(q.correct);
+    return {
+      id: q.id,
+      question: q.question,
+      options: shuffledOptions,
+      correctIndex: newCorrectIndex,
+      justification: q.justification
+    };
+  });
+}
+
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return minutes + ':' + seconds.toString().padStart(2, '0');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ============================================================
+// PANTALLA 1: LOGIN
+// ============================================================
+const loginForm = document.getElementById('login-form');
+const loginError = document.getElementById('login-error');
+
+loginForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const nameVal = document.getElementById('input-name').value.trim();
+  const matriculaVal = document.getElementById('input-matricula').value.trim();
+
+  if (!nameVal || !matriculaVal) {
+    loginError.classList.remove('hidden');
+    return;
+  }
+  loginError.classList.add('hidden');
+  studentName = nameVal;
+  studentMatricula = matriculaVal;
+  startQuiz();
+});
+
+// ============================================================
+// INICIO / REINICIO DEL QUIZ
+// ============================================================
+function startQuiz() {
+  quizQuestions = prepareQuizQuestions();
+  currentIndex = 0;
+  userAnswers = [];
+  score = 0;
+  startTime = Date.now();
+  answeredCurrent = false;
+
+  document.getElementById('screen-login').classList.add('hidden');
+  document.getElementById('screen-results').classList.add('hidden');
+  document.getElementById('screen-quiz').classList.remove('hidden');
+
+  renderQuestion();
+}
+
+document.getElementById('btn-restart').addEventListener('click', function() {
+  document.getElementById('screen-results').classList.add('hidden');
+  startQuiz();
+});
+
+// ============================================================
+// RENDER DE PREGUNTA
+// ============================================================
+function renderQuestion() {
+  answeredCurrent = false;
+  const q = quizQuestions[currentIndex];
+  const total = quizQuestions.length;
+
+  document.getElementById('quiz-progress-label').textContent = 'Pregunta ' + (currentIndex + 1) + '/' + total;
+  document.getElementById('quiz-score-label').textContent = 'Aciertos: ' + score;
+  document.getElementById('progress-bar').style.width = (((currentIndex + 1) / total) * 100) + '%';
+
+  document.getElementById('question-text').textContent = q.question;
+
+  const optionsContainer = document.getElementById('options-container');
+  optionsContainer.innerHTML = '';
+
+  q.options.forEach((optText, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'option-btn';
+    btn.textContent = String.fromCharCode(65 + idx) + ') ' + optText;
+    btn.dataset.index = idx;
+    btn.addEventListener('click', function() {
+      handleAnswer(idx);
+    });
+    optionsContainer.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback-box');
+  fb.classList.add('hidden');
+  fb.innerHTML = '';
+  fb.className = 'feedback-box hidden';
+  document.getElementById('btn-next').classList.add('hidden');
+}
+
+// ============================================================
+// MANEJO DE RESPUESTA
+// ============================================================
+function handleAnswer(selectedIdx) {
+  if (answeredCurrent) return;
+  answeredCurrent = true;
+
+  const q = quizQuestions[currentIndex];
+  const isCorrect = selectedIdx === q.correctIndex;
+  if (isCorrect) score++;
+
+  const optionButtons = document.querySelectorAll('#options-container .option-btn');
+  optionButtons.forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === q.correctIndex) {
+      btn.classList.add('option-correct');
+    } else if (idx === selectedIdx && !isCorrect) {
+      btn.classList.add('option-incorrect');
+    } else {
+      btn.classList.add('option-disabled-other');
+    }
+  });
+
+  const feedbackBox = document.getElementById('feedback-box');
+  feedbackBox.classList.remove('hidden');
+  if (isCorrect) {
+    feedbackBox.className = 'feedback-box correct fade-in';
+    feedbackBox.innerHTML = '<strong>✓ ¡Correcto!</strong><br>' + escapeHtml(q.justification);
+  } else {
+    feedbackBox.className = 'feedback-box incorrect fade-in';
+    feedbackBox.innerHTML = '<strong>✗ No es correcto.</strong> La respuesta correcta es: <em>"' + escapeHtml(q.options[q.correctIndex]) + '"</em><br>' + escapeHtml(q.justification);
+  }
+
+  document.getElementById('quiz-score-label').textContent = 'Aciertos: ' + score;
+
+  userAnswers.push({
+    questionId: q.id,
+    question: q.question,
+    selectedText: q.options[selectedIdx],
+    isCorrect: isCorrect,
+    correctText: q.options[q.correctIndex],
+    justification: q.justification
+  });
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.classList.remove('hidden');
+  nextBtn.textContent = (currentIndex === quizQuestions.length - 1) ? 'Ver resultados →' : 'Siguiente pregunta →';
+}
+
+document.getElementById('btn-next').addEventListener('click', function() {
+  if (currentIndex < quizQuestions.length - 1) {
+    currentIndex++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+});
+
+// ============================================================
+// PANTALLA 3: RESULTADOS
+// ============================================================
+function getAttemptCount(matricula) {
+  const key = 'emulsiones_quiz_attempts_' + matricula;
+  let count = parseInt(localStorage.getItem(key) || '0', 10);
+  count += 1;
+  localStorage.setItem(key, String(count));
+  return count;
+}
+
+function showResults() {
+  const elapsedMs = Date.now() - startTime;
+  const total = quizQuestions.length;
+  const percent = Math.round((score / total) * 100);
+  const attemptNumber = getAttemptCount(studentMatricula);
+
+  document.getElementById('screen-quiz').classList.add('hidden');
+  document.getElementById('screen-results').classList.remove('hidden');
+
+  document.getElementById('results-student').textContent = studentName + ' · Matrícula: ' + studentMatricula;
+  document.getElementById('results-score').textContent = score + '/' + total;
+  document.getElementById('results-percent').textContent = percent + '%';
+  document.getElementById('results-time').textContent = formatTime(elapsedMs);
+  document.getElementById('results-attempt').textContent = '#' + attemptNumber;
+
+  const tbody = document.getElementById('results-body');
+  tbody.innerHTML = '';
+  userAnswers.forEach((ans, idx) => {
+    const tr = document.createElement('tr');
+    if (!ans.isCorrect) tr.className = 'row-wrong';
+    tr.innerHTML =
+      '<td>' + (idx + 1) + '</td>' +
+      '<td>' + escapeHtml(ans.question) + '</td>' +
+      '<td class="' + (ans.isCorrect ? 'ans-correct-text' : 'ans-wrong-text') + '">' + escapeHtml(ans.selectedText) + ' ' + (ans.isCorrect ? '✓' : '✗') + '</td>' +
+      '<td class="ans-correct-text">' + escapeHtml(ans.correctText) + '</td>' +
+      '<td class="justif-text">' + escapeHtml(ans.justification) + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
