@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Efecto Tyndall — Dr. Juan G. Báez González</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4ef;color:#1a1a18;min-height:100vh;padding:1rem}
+@media(prefers-color-scheme:dark){
+  body{background:#1a1a18;color:#e8e6e0}
+  .card{background:#252522;border-color:#3a3a36}
+  .example-btn{background:#2a2a27;border-color:#3a3a36;color:#e8e6e0}
+  .example-btn:hover{background:#323230}
+  .example-btn.active{background:#1a2d45;border-color:#3a7fd4;color:#7ab8f5}
+  .example-btn .ex-type{color:#8a8a84}
+  .example-btn.active .ex-type{color:#5a9fd4}
+  .info-card{background:#2a2a27;border-color:#3a3a36}
+  .ic-label{color:#8a8a84}
+  canvas{border-color:#3a3a36}
+  .badge-yes{background:#1a3050;color:#7ab8f5}
+  .badge-no{background:#2a2a27;color:#8a8a84;border-color:#3a3a36}
+  .subtitle,.ctrl-label,.section-label{color:#6a6a64}
+  .footer{color:#6a6a64;border-color:#2a2a27}
+  .theory-item.verdadera{background:#1a2d10;border-color:#3b6d11}
+  .theory-item.coloidal{background:#0c2240;border-color:#185fa5}
+  .theory-item.verdadera h3{color:#8dc65a}
+  .theory-item.coloidal h3{color:#7ab8f5}
+  .theory-item p,.explanation{color:#9a9a94}
+  .explanation b{color:#e8e6e0}
+  .header-bar{background:#252522;border-color:#3a3a36}
+  .prof-name{color:#e8e6e0}
+  .ua-name{color:#7ab8f5}
+  .q-option{background:#2a2a27;border-color:#3a3a36;color:#e8e6e0}
+  .q-option:hover:not(.disabled){background:#323230}
+  .q-option.correct{background:#1a2d10;border-color:#3b6d11;color:#8dc65a}
+  .q-option.wrong{background:#2d1010;border-color:#8a2020;color:#f09090}
+  .feedback-box.ok{background:#1a2d10;border-color:#3b6d11}
+  .feedback-box.err{background:#2d1010;border-color:#8a2020}
+  .feedback-box.ok .fb-title{color:#8dc65a}
+  .feedback-box.err .fb-title{color:#f09090}
+  .feedback-box p{color:#9a9a94}
+  .progress-bar-bg{background:#2a2a27}
+  .app-item{background:#2a2a27;border-color:#3a3a36}
+  .app-item h3{color:#7ab8f5}
+  .app-item p{color:#9a9a94}
+  .score-box{background:#1a2d10;border-color:#3b6d11}
+  .score-num{color:#8dc65a}
+  .score-label,.score-msg{color:#9a9a94}
+  .score-msg{color:#8dc65a}
+  .btn-dl,.btn-retry,.nav-btn{background:#2a2a27;border-color:#3a7fd4;color:#7ab8f5}
+  .btn-retry{border-color:#3a3a36;color:#e8e6e0}
+  .nav-btn{border-color:#3a3a36;color:#e8e6e0}
+  .nav-btn:hover,.btn-retry:hover{background:#323230}
+  .q-progress{color:#8a8a84}
+  .student-form input{background:#2a2a27;border-color:#3a3a36;color:#e8e6e0}
+  .student-form input:focus{border-color:#3a7fd4}
+  .student-form label{color:#9a9a94}
+  .student-form .field-group{border-color:#3a3a36}
+  .review-table th{background:#2a2a27;color:#9a9a94}
+  .review-table td{border-color:#3a3a36;color:#e8e6e0}
+  .review-table tr:nth-child(even) td{background:#252522}
+  .review-table .cell-ok{color:#8dc65a}
+  .review-table .cell-err{color:#f09090}
+}
+.wrapper{max-width:720px;margin:0 auto}
+.header-bar{background:#fff;border:0.5px solid #d4d2c8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;display:flex;align-items:center;gap:12px}
+.header-icon{width:44px;height:44px;border-radius:50%;background:#e6f0fb;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.prof-name{font-size:15px;font-weight:600}
+.ua-name{font-size:12px;color:#185fa5;margin-top:2px}
+.inst-name{font-size:11px;color:#8a8a84;margin-top:1px}
+.card{background:#fff;border:0.5px solid #d4d2c8;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.section-label{font-size:11px;font-weight:600;color:#8a8a84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.examples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.example-btn{padding:9px 10px;border:0.5px solid #d4d2c8;border-radius:8px;background:#f5f4ef;cursor:pointer;font-size:12px;color:#1a1a18;text-align:left;transition:background .12s;font-family:inherit}
+.example-btn:hover{background:#eae9e4}
+.example-btn.active{border-color:#3a7fd4;background:#e6f0fb;color:#185fa5}
+.example-btn .ex-name{font-weight:600;display:block;margin-bottom:2px}
+.example-btn .ex-type{color:#6a6a64;font-size:10px;line-height:1.3}
+.example-btn.active .ex-type{color:#3a7fd4}
+.controls{display:flex;flex-direction:column;gap:12px}
+.ctrl-row{display:flex;align-items:center;gap:10px}
+.ctrl-label{font-size:13px;color:#6a6a64;min-width:155px}
+.ctrl-row input[type=range]{flex:1;accent-color:#3a7fd4}
+.ctrl-val{font-size:13px;font-weight:600;min-width:65px;text-align:right}
+canvas{display:block;width:100%;border-radius:10px;border:0.5px solid #d4d2c8}
+.info-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.info-card{background:#f5f4ef;border:0.5px solid #d4d2c8;border-radius:8px;padding:10px 12px}
+.ic-label{font-size:10px;color:#6a6a64;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.ic-val{font-size:13px;font-weight:600}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-yes{background:#e6f0fb;color:#185fa5}
+.badge-no{background:#f0efea;color:#8a8a84;border:0.5px solid #d4d2c8}
+.explanation{font-size:13px;line-height:1.7;color:#4a4a46}
+.explanation b{color:#1a1a18;font-weight:600}
+.theory-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.theory-item{padding:10px 12px;border-radius:8px;border:0.5px solid #d4d2c8}
+.theory-item.verdadera{background:#eaf3de;border-color:#c0dd97}
+.theory-item.coloidal{background:#e6f0fb;border-color:#b5d4f4}
+.theory-item h3{font-size:12px;font-weight:600;margin-bottom:4px}
+.theory-item.verdadera h3{color:#3b6d11}
+.theory-item.coloidal h3{color:#185fa5}
+.theory-item p{font-size:11px;line-height:1.5;color:#4a4a46}
+.apps-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.app-item{background:#f5f4ef;border:0.5px solid #d4d2c8;border-radius:8px;padding:12px}
+.app-item h3{font-size:12px;font-weight:600;color:#185fa5;margin-bottom:4px}
+.app-item p{font-size:11px;line-height:1.5;color:#4a4a46}
+/* Student form */
+.student-form{display:flex;flex-direction:column;gap:14px}
+.field-group{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:12px;border:0.5px solid #d4d2c8;border-radius:8px;background:#f9f8f4}
+.field-group.two{grid-template-columns:1fr 1fr}
+.student-form label{font-size:11px;color:#6a6a64;display:block;margin-bottom:4px;font-weight:500}
+.student-form input{width:100%;padding:8px 10px;border:0.5px solid #d4d2c8;border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:#fff}
+.student-form input:focus{border-color:#3a7fd4}
+.form-note{font-size:11px;color:#8a8a84;margin-top:-6px}
+/* Quiz */
+.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.q-progress{font-size:12px;color:#8a8a84}
+.progress-bar-bg{height:4px;background:#e8e6e0;border-radius:2px;margin-bottom:14px}
+.progress-bar-fill{height:4px;background:#3a7fd4;border-radius:2px;transition:width .4s}
+.q-text{font-size:14px;font-weight:500;line-height:1.6;margin-bottom:12px}
+.q-options{display:flex;flex-direction:column;gap:7px}
+.q-option{padding:10px 14px;border:0.5px solid #d4d2c8;border-radius:8px;background:#f5f4ef;cursor:pointer;font-size:13px;text-align:left;font-family:inherit;transition:background .1s;line-height:1.4}
+.q-option:hover:not(.disabled){background:#eae9e4}
+.q-option.correct{background:#eaf3de;border-color:#3b6d11;color:#27500a}
+.q-option.wrong{background:#fceaea;border-color:#c03030;color:#501313}
+.q-option.disabled{cursor:default}
+.feedback-box{margin-top:12px;padding:12px 14px;border-radius:8px;border:0.5px solid #d4d2c8;display:none}
+.feedback-box.ok{background:#eaf3de;border-color:#3b6d11;display:block}
+.feedback-box.err{background:#fceaea;border-color:#c03030;display:block}
+.fb-title{font-size:12px;font-weight:600;margin-bottom:5px}
+.feedback-box.ok .fb-title{color:#27500a}
+.feedback-box.err .fb-title{color:#501313}
+.feedback-box p{font-size:12px;line-height:1.6;color:#4a4a46}
+.nav-row{display:flex;justify-content:flex-end;margin-top:12px}
+.nav-btn{padding:8px 18px;border:0.5px solid #d4d2c8;border-radius:8px;background:#f5f4ef;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500}
+.nav-btn:hover{background:#eae9e4}
+/* Score */
+.score-box{background:#eaf3de;border:0.5px solid #3b6d11;border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:1rem}
+.score-num{font-size:3rem;font-weight:700;color:#27500a}
+.score-label{font-size:13px;color:#4a4a46;margin-top:4px}
+.score-msg{font-size:14px;margin-top:10px;color:#27500a;font-weight:500}
+.btn-row{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.btn-dl{padding:10px 22px;border:0.5px solid #3b6d11;border-radius:8px;background:#eaf3de;color:#27500a;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600}
+.btn-dl:hover{background:#d5ebb8}
+.btn-retry{padding:10px 22px;border:0.5px solid #d4d2c8;border-radius:8px;background:#f5f4ef;color:#4a4a46;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500}
+.btn-retry:hover{background:#eae9e4}
+/* Review table */
+.review-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px}
+.review-table th{background:#f0efea;padding:7px 10px;text-align:left;font-weight:600;color:#6a6a64;border-bottom:0.5px solid #d4d2c8}
+.review-table td{padding:7px 10px;border-bottom:0.5px solid #e8e6e0;color:#1a1a18;vertical-align:top}
+.review-table tr:nth-child(even) td{background:#fafaf8}
+.cell-ok{color:#27500a;font-weight:600}
+.cell-err{color:#a02020;font-weight:600}
+.footer{margin-top:1.5rem;padding-top:1rem;border-top:0.5px solid #e0dfd8;font-size:11px;color:#8a8a84;text-align:center}
+@media(max-width:480px){
+  .ctrl-label{min-width:110px;font-size:12px}
+  .info-row,.theory-grid,.apps-grid{grid-template-columns:1fr}
+  .field-group{grid-template-columns:1fr}
+  .field-group.two{grid-template-columns:1fr}
+  .header-bar{flex-direction:column;align-items:flex-start;gap:8px}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header-bar">
+    <div class="header-icon">🔬</div>
+    <div>
+      <div class="prof-name">Dr. Juan G. Báez González</div>
+      <div class="ua-name">UA: Dispersiones y Reología de Alimentos</div>
+      <div class="inst-name">Facultad de Ciencias Biológicas · UANL</div>
+    </div>
+  </div>
+
+  <!-- Simulator -->
+  <div class="card">
+    <div class="section-label">Sistemas alimentarios — simulador</div>
+    <div class="examples-grid" id="exGrid"></div>
+  </div>
+  <div class="card">
+    <div class="section-label">Parámetros del sistema</div>
+    <div class="controls">
+      <div class="ctrl-row">
+        <span class="ctrl-label">Tamaño de partícula</span>
+        <input type="range" min="0.1" max="500" step="0.1" value="1" id="sizeSlider">
+        <span class="ctrl-val" id="sizeVal">1.0 nm</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Concentración</span>
+        <input type="range" min="1" max="100" step="1" value="30" id="concSlider">
+        <span class="ctrl-val" id="concVal">30%</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-label">Visualización del haz de luz</div>
+    <canvas id="simCanvas" height="220"></canvas>
+    <div class="info-row">
+      <div class="info-card"><div class="ic-label">Tipo de sistema</div><div class="ic-val" id="infoTipo">—</div></div>
+      <div class="info-card"><div class="ic-label">Efecto Tyndall</div><div class="ic-val" id="infoTyndall">—</div></div>
+      <div class="info-card"><div class="ic-label">Referencia</div><div class="ic-val" id="infoEjemplo" style="font-size:11px;font-weight:400">—</div></div>
+    </div>
+  </div>
+
+  <!-- Theory -->
+  <div class="card">
+    <div class="section-label">Fundamento teórico</div>
+    <p class="explanation">El <b>efecto Tyndall</b> ocurre cuando un haz de luz es dispersado lateralmente por partículas coloidales (1–1000 nm). En soluciones verdaderas las partículas son demasiado pequeñas (&lt;1 nm) para dispersar la luz visible.</p>
+    <div class="theory-grid">
+      <div class="theory-item verdadera"><h3>Solución verdadera</h3><p>Partículas &lt;1 nm. Sin dispersión visible. Sistema transparente y homogéneo. Ejemplos: agua con sal, café filtrado, sacarosa disuelta.</p></div>
+      <div class="theory-item coloidal"><h3>Sistema coloidal</h3><p>Partículas 1–1000 nm. Haz dispersado lateralmente (Tyndall positivo). Sistema turbio u opaco. Ejemplos: leche, gelatina, almidón en agua.</p></div>
+    </div>
+  </div>
+
+  <!-- Applications -->
+  <div class="card">
+    <div class="section-label">Aplicaciones prácticas basadas en el efecto Tyndall</div>
+    <div class="apps-grid">
+      <div class="app-item"><h3>Dispersión dinámica de luz (DLS)</h3><p>Mide fluctuaciones en la dispersión de luz para calcular el <b>diámetro hidrodinámico</b> de partículas coloidales. Base del equipo Zetasizer (Malvern).</p></div>
+      <div class="app-item"><h3>Potencial Zeta (ζ)</h3><p>Combina dispersión de luz con electroforesis láser para determinar la <b>carga superficial</b> de partículas; indicador clave de estabilidad coloidal.</p></div>
+      <div class="app-item"><h3>Turbidimetría y nefelometría</h3><p>Cuantifica concentración de partículas midiendo la intensidad del haz transmitido (turbidimetría) o dispersado (nefelometría). Control de calidad en bebidas y caldos.</p></div>
+      <div class="app-item"><h3>Dispersión de luz estática (SLS)</h3><p>Determina el <b>peso molecular</b> y el radio de giro (Rg) de macromoléculas como proteínas y polisacáridos en solución.</p></div>
+      <div class="app-item"><h3>Microscopía de campo oscuro</h3><p>Ilumina partículas coloidales de manera oblicua para visualizar nanopartículas sin tinción, aprovechando la luz dispersada.</p></div>
+      <div class="app-item"><h3>Estabilidad de emulsiones</h3><p>El índice de turbidez detecta <b>cremado, floculación y coalescencia</b> en leche, mayonesa, bebidas proteicas y otros sistemas dispersos.</p></div>
+    </div>
+  </div>
+
+  <!-- Student ID -->
+  <div class="card" id="studentCard">
+    <div class="section-label">Datos del estudiante</div>
+    <div class="student-form">
+      <div>
+        <div class="field-group">
+          <div>
+            <label for="fNombre">Nombre(s)</label>
+            <input type="text" id="fNombre" placeholder="Ej. María Elena">
+          </div>
+          <div>
+            <label for="fApPat">Apellido paterno</label>
+            <input type="text" id="fApPat" placeholder="Ej. González">
+          </div>
+          <div>
+            <label for="fApMat">Apellido materno</label>
+            <input type="text" id="fApMat" placeholder="Ej. Ramírez">
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="field-group two">
+          <div>
+            <label for="fMatricula">Matrícula (opcional)</label>
+            <input type="text" id="fMatricula" placeholder="Ej. 2025123456">
+          </div>
+          <div>
+            <label>Fecha de contestación</label>
+            <input type="text" id="fFecha" readonly style="background:#f0efea;cursor:default">
+          </div>
+        </div>
+        <p class="form-note" style="margin-top:8px">La fecha se registra automáticamente al iniciar la evaluación.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="card" id="quizSection">
+    <div class="section-label">Evaluación formativa</div>
+    <div id="quizContent"></div>
+  </div>
+
+  <div class="footer">Material didáctico · Departamento de Alimentos · FCB–UANL · Dr. Juan G. Báez González · 2026</div>
+</div>
+
+<script>
+// ── SIMULATOR ─────────────────────────────────────────────
+const examples=[
+  {name:"Agua + sal",type:"Solución verdadera",size:0.3,conc:20,note:"NaCl disuelto ~0.3 nm"},
+  {name:"Sacarosa",type:"Solución verdadera",size:0.5,conc:25,note:"Molécula de azúcar ~0.5 nm"},
+  {name:"Café filtrado",type:"Solución verdadera",size:0.8,conc:30,note:"Compuestos disueltos <1 nm"},
+  {name:"Almidón en agua",type:"Coloide (sol)",size:80,conc:35,note:"Gránulos 50–100 nm"},
+  {name:"Gelatina",type:"Coloide (gel)",size:50,conc:40,note:"Red proteica ~50 nm"},
+  {name:"Leche",type:"Coloide (emulsión)",size:200,conc:50,note:"Glóbulos de grasa 100–500 nm"},
+];
+const canvas=document.getElementById('simCanvas');
+const ctx=canvas.getContext('2d');
+let particles=[],beamX=-20;
+const D=()=>window.matchMedia('(prefers-color-scheme:dark)').matches;
+const getSize=()=>parseFloat(document.getElementById('sizeSlider').value);
+const getConc=()=>parseInt(document.getElementById('concSlider').value);
+const isTyndall=()=>{const s=getSize();return s>=1&&s<=1000};
+const getType=()=>{const s=getSize();return s<1?"Solución verdadera":s<=1000?"Sistema coloidal":"Suspensión gruesa"};
+function initP(){particles=Array.from({length:Math.round(getConc()*.8)},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4}))}
+function getR(){const s=getSize();return s<1?1:s<10?2:s<100?3.5:5}
+function draw(){
+  const W=canvas.width,H=canvas.height,d=D(),t=isTyndall(),bw=28;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle=d?'#1a1a18':'#f5f4ef';ctx.fillRect(0,0,W,H);
+  const gr=ctx.createLinearGradient(beamX-bw/2,0,beamX+bw/2,0);
+  if(t){gr.addColorStop(0,'rgba(255,220,80,0)');gr.addColorStop(.5,d?'rgba(255,210,60,.55)':'rgba(255,210,60,.45)');gr.addColorStop(1,'rgba(255,220,80,0)')}
+  else{gr.addColorStop(0,'rgba(180,210,255,0)');gr.addColorStop(.5,d?'rgba(180,210,255,.12)':'rgba(180,210,255,.09)');gr.addColorStop(1,'rgba(180,210,255,0)')}
+  ctx.fillStyle=gr;ctx.fillRect(beamX-bw/2,0,bw,H);
+  ctx.fillStyle=t?'#f5c842':(d?'#5a7ab0':'#8aaace');ctx.font='13px system-ui';ctx.fillText('▶',4,H/2+5);
+  const r=getR();
+  particles.forEach(p=>{
+    const ib=Math.abs(p.x-beamX)<bw/2+r;
+    if(t&&ib){const sg=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r*5);sg.addColorStop(0,'rgba(255,220,100,.55)');sg.addColorStop(1,'rgba(255,220,100,0)');ctx.fillStyle=sg;ctx.beginPath();ctx.arc(p.x,p.y,r*5,0,Math.PI*2);ctx.fill()}
+    ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    const s=getSize();
+    ctx.fillStyle=s<1?(d?'rgba(150,180,220,.5)':'rgba(80,120,180,.35)'):(t&&ib?(d?'rgba(255,230,100,.9)':'rgba(200,160,20,.85)'):(d?'rgba(180,170,150,.7)':'rgba(120,110,90,.65)'));
+    ctx.fill();
+  });
+  ctx.save();ctx.textAlign='right';ctx.font='11px system-ui';ctx.fillStyle=d?'#555':'#bbb';ctx.fillText(getType(),W-6,H-8);ctx.restore();
+  ctx.font='500 12px system-ui';ctx.fillStyle=t?(d?'#f0c040':'#8a6a00'):(d?'#6080a0':'#4a6a8a');ctx.fillText(t?'Rayo visible ✓':'Sin dispersión lateral',beamX+bw/2+8,20);
+}
+function animate(){
+  beamX+=1.2;if(beamX>canvas.width+20)beamX=-20;
+  particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0});
+  draw();requestAnimationFrame(animate);
+}
+function updateInfo(){
+  const s=getSize(),t=isTyndall();
+  document.getElementById('sizeVal').textContent=s<1?s.toFixed(1)+' nm':Math.round(s)+' nm';
+  document.getElementById('concVal').textContent=getConc()+'%';
+  document.getElementById('infoTipo').textContent=getType();
+  document.getElementById('infoTyndall').innerHTML=t?'<span class="badge badge-yes">Sí, visible</span>':'<span class="badge badge-no">No visible</span>';
+}
+let activeIdx=-1;
+function selectExample(i){
+  activeIdx=i;const ex=examples[i];
+  document.getElementById('sizeSlider').value=ex.size;document.getElementById('concSlider').value=ex.conc;
+  document.getElementById('infoEjemplo').innerHTML=ex.note;
+  document.querySelectorAll('.example-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  initP();updateInfo();
+}
+const grid=document.getElementById('exGrid');
+examples.forEach((ex,i)=>{
+  const btn=document.createElement('button');btn.className='example-btn';
+  btn.innerHTML=`<span class="ex-name">${ex.name}</span><span class="ex-type">${ex.type}</span>`;
+  btn.onclick=()=>selectExample(i);grid.appendChild(btn);
+});
+document.getElementById('sizeSlider').oninput=()=>{activeIdx=-1;document.querySelectorAll('.example-btn').forEach(b=>b.classList.remove('active'));document.getElementById('infoEjemplo').textContent='—';initP();updateInfo()};
+document.getElementById('concSlider').oninput=()=>{initP();updateInfo()};
+function resize(){canvas.width=canvas.parentElement.clientWidth||600;canvas.height=220;initP()}
+new ResizeObserver(resize).observe(canvas.parentElement);
+resize();updateInfo();animate();
+
+// Set auto date
+(function(){
+  const now=new Date();
+  const d=now.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const t=now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('fFecha').value=d+' '+t;
+})();
+
+// ── QUIZ ─────────────────────────────────────────────────
+const questions=[
+  {
+    q:"¿Cuál es el rango de tamaño de partícula que define a un sistema coloidal?",
+    opts:["Menor a 1 nm","Entre 1 y 1000 nm","Entre 1 µm y 1 mm","Mayor a 1 mm"],
+    correct:1,
+    explanation:"Los sistemas coloidales tienen partículas dispersas en el rango de <b>1 a 1000 nm</b>. Por debajo de 1 nm hablamos de soluciones verdaderas (iones y moléculas disueltas); por encima de 1 µm hay suspensiones groseras que sedimentan por gravedad. Este rango determina si el sistema presenta efecto Tyndall y si puede analizarse por DLS."
+  },
+  {
+    q:"El efecto Tyndall ocurre porque las partículas coloidales:",
+    opts:["Absorben completamente la luz visible","Dispersan lateralmente la luz al interactuar con ella","Refractan la luz hacia el detector","Transmiten la luz sin ninguna alteración"],
+    correct:1,
+    explanation:"Las partículas coloidales <b>dispersan la luz lateralmente</b> (dispersión de Rayleigh y Mie) al ser de tamaño comparable a la longitud de onda de la luz visible. En soluciones verdaderas las partículas son demasiado pequeñas y la luz pasa sin interacción lateral detectable."
+  },
+  {
+    q:"¿Cuál de los siguientes sistemas alimentarios NO presenta efecto Tyndall?",
+    opts:["Leche entera","Almidón gelatinizado en agua","Solución de sacarosa al 10%","Gelatina preparada"],
+    correct:2,
+    explanation:"La <b>solución de sacarosa</b> es una solución verdadera: la molécula de sacarosa tiene ~0.5 nm, muy por debajo del umbral coloidal. Las demás opciones contienen partículas en rango coloidal: glóbulos de grasa en leche (100–500 nm), gránulos de almidón gelatinizados y la red proteica de la gelatina (~50 nm)."
+  },
+  {
+    q:"La técnica de Dispersión Dinámica de Luz (DLS) se basa en el efecto Tyndall para:",
+    opts:["Medir la viscosidad de emulsiones","Determinar el tamaño hidrodinámico de partículas coloidales","Cuantificar la concentración de proteínas por absorbancia","Evaluar el color de soluciones mediante espectrofotometría"],
+    correct:1,
+    explanation:"La DLS utiliza la <b>dispersión de luz láser</b> por las partículas y analiza las fluctuaciones de intensidad causadas por el movimiento Browniano. A partir de la función de autocorrelación calcula el coeficiente de difusión y, mediante la ecuación de Stokes-Einstein, el <b>diámetro hidrodinámico</b>. Es la principal aplicación instrumental del efecto Tyndall en ciencia de alimentos."
+  },
+  {
+    q:"El potencial Zeta es un parámetro que se obtiene combinando el efecto Tyndall con:",
+    opts:["Cromatografía de exclusión molecular","Electroforesis láser Doppler (ELS)","Espectrometría de masas","Resonancia magnética nuclear"],
+    correct:1,
+    explanation:"El potencial Zeta se mide mediante <b>electroforesis láser Doppler (ELS)</b>, que combina dispersión de luz con la aplicación de un campo eléctrico. Las partículas migran según su carga superficial y esa velocidad se detecta por el desplazamiento Doppler de la luz dispersada. Un potencial Zeta mayor a ±30 mV indica un sistema coloidal estable."
+  },
+  {
+    q:"En nefelometría, la señal de medición corresponde a:",
+    opts:["La luz absorbida a 280 nm","La luz dispersada a un ángulo (típicamente 90°)","La diferencia de temperatura en la muestra","La fluorescencia emitida por las partículas"],
+    correct:1,
+    explanation:"La <b>nefelometría</b> detecta la luz <b>dispersada lateralmente</b> (generalmente a 90°), aprovechando directamente el efecto Tyndall. Esto la hace muy sensible a bajas concentraciones de partículas. A diferencia de la turbidimetría, que mide la luz transmitida, la nefelometría es ideal para muestras muy diluidas."
+  },
+  {
+    q:"¿Por qué el cielo azul es una manifestación del mismo principio que el efecto Tyndall?",
+    opts:["La atmósfera absorbe selectivamente longitudes de onda largas","Las partículas atmosféricas dispersan más eficientemente la luz de menor longitud de onda","El sol emite más radiación azul durante el día","El ozono absorbe la luz roja al mediodía"],
+    correct:1,
+    explanation:"La <b>dispersión de Rayleigh</b> establece que la intensidad de la luz dispersada es inversamente proporcional a la cuarta potencia de la longitud de onda (I ∝ 1/λ⁴). La luz azul (~450 nm) se dispersa ~5.5 veces más que la roja (~700 nm) por las moléculas y partículas finas atmosféricas. Al atardecer, cuando la luz recorre más atmósfera, la azul ya fue dispersada y llega preferentemente la roja/naranja."
+  },
+  {
+    q:"Un investigador observa que al iluminar con láser una bebida proteica, el haz se hace visible dentro del líquido. Esto indica que:",
+    opts:["La proteína está completamente precipitada","El sistema contiene partículas en rango coloidal que dispersan el haz lateralmente","La bebida es una solución verdadera perfectamente transparente","El láser tiene exceso de potencia y calienta la muestra"],
+    correct:1,
+    explanation:"La visibilidad del haz dentro del líquido es la <b>definición operacional del efecto Tyndall positivo</b>: las partículas (agregados proteicos, micelas u otras en rango 1–1000 nm) dispersan la luz lateralmente hacia el observador. Si fuera solución verdadera, el haz pasaría sin ser detectado lateralmente. Este resultado indica que la bebida es un <b>sistema coloidal</b>, información relevante para evaluar su estabilidad y procesamiento."
+  }
+];
+
+let current=0,score=0,answered=false;
+let questionsShuffled=[];
+const results=[];
+let quizStarted=false;
+
+function stripHTML(s){return s.replace(/<[^>]+>/g,'')}
+
+function renderQuiz(){
+  const container=document.getElementById('quizContent');
+  if(!quizStarted){
+    container.innerHTML=`
+      <p style="font-size:13px;color:var(--text-secondary,#6a6a64);margin-bottom:14px">
+        Completa tus datos arriba y luego inicia la evaluación. La fecha se registra automáticamente.
+      </p>
+      <button class="nav-btn" style="width:100%;justify-content:center;font-size:14px;padding:12px" onclick="startQuiz()">
+        Iniciar evaluación →
+      </button>`;
+    return;
+  }
+  if(current>=questionsShuffled.length){
+    const pct=Math.round(score/questionsShuffled.length*100);
+    const cal=(score/questionsShuffled.length*100).toFixed(1);
+    let msg=pct>=90?"Excelente dominio del tema.":pct>=80?"Muy buen desempeño.":pct>=60?"Desempeño aceptable, revisa los temas marcados.":"Revisa el fundamento teórico antes de continuar.";
+    let reviewRows=results.map((r,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td style="max-width:220px">${stripHTML(questionsShuffled[i].q)}</td>
+        <td>${r.selected}</td>
+        <td>${r.correctOpt}</td>
+        <td class="${r.ok?'cell-ok':'cell-err'}">${r.ok?'✓':'✗'}</td>
+      </tr>`).join('');
+    container.innerHTML=`
+      <div class="score-box">
+        <div class="score-num">${cal}</div>
+        <div class="score-label">${score} de ${questionsShuffled.length} correctas · Calificación sobre 100</div>
+        <div class="score-msg">${msg}</div>
+        <div class="btn-row">
+          <button class="btn-dl" onclick="downloadExcel()">⬇ Descargar resultados (.xlsx)</button>
+          <button class="btn-retry" onclick="restartQuiz()">Reintentar</button>
+        </div>
+      </div>
+      <p class="section-label">Detalle por pregunta</p>
+      <table class="review-table">
+        <thead><tr><th>#</th><th>Pregunta</th><th>Tu respuesta</th><th>Respuesta correcta</th><th>Resultado</th></tr></thead>
+        <tbody>${reviewRows}</tbody>
+      </table>`;
+    return;
+  }
+  const q=questionsShuffled[current];
+  const pct=Math.round(current/questionsShuffled.length*100);
+  let optsHTML=q.opts.map((o,i)=>`<button class="q-option" id="opt${i}" onclick="answer(${i})">${o}</button>`).join('');
+  container.innerHTML=`
+    <div class="q-header">
+      <span class="section-label" style="margin:0">Pregunta ${current+1} de ${questionsShuffled.length}</span>
+      <span class="q-progress">Aciertos: ${score}</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    <p class="q-text">${q.q}</p>
+    <div class="q-options">${optsHTML}</div>
+    <div class="feedback-box" id="feedback"></div>
+    <div class="nav-row" id="navRow" style="display:none">
+      <button class="nav-btn" onclick="nextQ()">${current+1<questionsShuffled.length?'Siguiente →':'Ver resultado'}</button>
+    </div>`;
+  answered=false;
+}
+
+function startQuiz(){
+  const nombre=document.getElementById('fNombre').value.trim();
+  const apPat=document.getElementById('fApPat').value.trim();
+  const apMat=document.getElementById('fApMat').value.trim();
+  if(!nombre||!apPat||!apMat){
+    alert('Por favor completa nombre y ambos apellidos antes de iniciar.');return;
+  }
+  /* Barajar preguntas y opciones al iniciar la evaluación */
+  questionsShuffled = questions.map(q => {
+    const correctText = q.opts[q.correct];
+    const opts = q.opts.slice();
+    for(let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+    return { q:q.q, opts:opts, correct:opts.indexOf(correctText), explanation:q.explanation };
+  });
+  for(let i=questionsShuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[questionsShuffled[i],questionsShuffled[j]]=[questionsShuffled[j],questionsShuffled[i]];}
+  quizStarted=true;
+  // Lock form
+  ['fNombre','fApPat','fApMat','fMatricula'].forEach(id=>{
+    const el=document.getElementById(id);el.readOnly=true;el.style.background='#f0efea';el.style.cursor='default';
+  });
+  renderQuiz();
+}
+
+function answer(i){
+  if(answered)return;
+  answered=true;
+  const q=questionsShuffled[current];
+  const opts=document.querySelectorAll('.q-option');
+  opts.forEach(b=>b.classList.add('disabled'));
+  const ok=i===q.correct;
+  if(ok)score++;
+  opts[i].classList.add(ok?'correct':'wrong');
+  if(!ok)opts[q.correct].classList.add('correct');
+  results.push({ok,selected:q.opts[i],correctOpt:q.opts[q.correct]});
+  const fb=document.getElementById('feedback');
+  fb.className='feedback-box '+(ok?'ok':'err');
+  fb.innerHTML=ok
+    ?`<div class="fb-title">✓ Correcto</div><p>${q.explanation}</p>`
+    :`<div class="fb-title">✗ Respuesta incorrecta — la correcta es: "${q.opts[q.correct]}"</div><p>${q.explanation}</p>`;
+  document.getElementById('navRow').style.display='flex';
+}
+
+function nextQ(){current++;renderQuiz()}
+
+function restartQuiz(){
+  current=0;score=0;answered=false;results.length=0;
+  ['fNombre','fApPat','fApMat','fMatricula'].forEach(id=>{
+    const el=document.getElementById(id);el.readOnly=false;el.style.background='';el.style.cursor='';
+  });
+  quizStarted=false;
+  renderQuiz();
+}
+
+function downloadExcel(){
+  const nombre=document.getElementById('fNombre').value.trim();
+  const apPat=document.getElementById('fApPat').value.trim();
+  const apMat=document.getElementById('fApMat').value.trim();
+  const mat=document.getElementById('fMatricula').value.trim()||'—';
+  const fecha=document.getElementById('fFecha').value;
+  const cal=(score/questionsShuffled.length*100).toFixed(1);
+
+  const wb=XLSX.utils.book_new();
+
+  // Sheet 1: Resumen
+  const resumen=[
+    ['EVALUACIÓN FORMATIVA — EFECTO TYNDALL'],
+    ['Dispersiones y Reología de Alimentos · FCB–UANL'],
+    ['Dr. Juan G. Báez González'],
+    [],
+    ['Apellido paterno',apPat],
+    ['Apellido materno',apMat],
+    ['Nombre(s)',nombre],
+    ['Matrícula',mat],
+    ['Fecha de contestación',fecha],
+    [],
+    ['Aciertos',score],
+    ['Total de preguntas',questionsShuffled.length],
+    ['Calificación (0–100)',parseFloat(cal)],
+  ];
+  const ws1=XLSX.utils.aoa_to_sheet(resumen);
+  ws1['!cols']=[{wch:28},{wch:40}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Resumen');
+
+  // Sheet 2: Detalle
+  const header=['#','Pregunta','Respuesta seleccionada','Respuesta correcta','Resultado','Puntos'];
+  const rows=results.map((r,i)=>[
+    i+1,
+    stripHTML(questionsShuffled[i].q),
+    r.selected,
+    r.correctOpt,
+    r.ok?'Correcta':'Incorrecta',
+    r.ok?1:0
+  ]);
+  const detalle=[header,...rows,[],['','','','','Total',score],['','','','','Calificación',parseFloat(cal)]];
+  const ws2=XLSX.utils.aoa_to_sheet(detalle);
+  ws2['!cols']=[{wch:4},{wch:55},{wch:38},{wch:38},{wch:12},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Detalle');
+
+  const fname=`Tyndall_${apPat}_${apMat}_${nombre.split(' ')[0]}.xlsx`;
+  XLSX.writeFile(wb,fname);
+}
+
+renderQuiz();
+</script>
+</body>
+</html>
