@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Material didáctico interactivo sobre los factores que afectan la estabilidad de sistemas dispersos alimentarios: potencial zeta, estabilidad estérica y electrostática. LCA 430, FCB-UANL.">
+<meta name="author" content="Dr. Juan Gabriel Báez González">
+<meta name="keywords" content="sistemas dispersos, potencial zeta, estabilidad estérica, estabilidad electrostática, emulsiones, ciencia de alimentos, UANL">
+<title>Estabilidad de Sistemas Dispersos en Alimentos | LCA 430 · FCB-UANL</title>
+<style>
+:root{
+  --navy:#1E3A5F; --navy-dark:#152A46; --gold:#C9A227; --gold-soft:#E4CE8A;
+  --cream:#F7F6F2; --white:#FFFFFF; --ink:#2B2B2B; --gris:#6B7280;
+  --ok:#2E7D32; --bad:#B3402A; --card-shadow:0 2px 10px rgba(30,58,95,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{font-family:Calibri,'Segoe UI',Arial,sans-serif;background:var(--cream);color:var(--ink);line-height:1.6}
+h1,h2,h3,h4{font-family:Cambria,Georgia,'Times New Roman',serif;color:var(--navy)}
+
+/* ---------- ENCABEZADO ---------- */
+header.hero{background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 60%,#2A4E7C 100%);color:var(--white);padding:34px 20px 30px;position:relative;overflow:hidden}
+header.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:6px;background:linear-gradient(90deg,var(--gold),var(--gold-soft),var(--gold))}
+.hero-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.logo-box{display:flex;gap:14px;align-items:center}
+.logo-svg{width:64px;height:64px;flex:none}
+.hero-text h1{color:var(--white);font-size:clamp(1.5rem,3.5vw,2.3rem);line-height:1.2}
+.hero-text .curso{color:var(--gold-soft);font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.hero-text .prof{margin-top:8px;font-size:1.05rem;color:#E8ECF3}
+.hero-text .prof strong{color:var(--gold-soft)}
+.hero-text .inst{font-size:.9rem;color:#B9C6D8}
+
+/* ---------- NAVEGACIÓN ---------- */
+nav#menu{position:sticky;top:0;z-index:50;background:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+nav#menu ul{max-width:1100px;margin:0 auto;display:flex;list-style:none;overflow-x:auto;-webkit-overflow-scrolling:touch}
+nav#menu a{display:block;padding:12px 16px;color:#DCE4EF;text-decoration:none;font-size:.95rem;white-space:nowrap;border-bottom:3px solid transparent;transition:.2s}
+nav#menu a:hover,nav#menu a:focus{color:var(--white);border-bottom-color:var(--gold);background:rgba(255,255,255,.06)}
+nav#menu a.activo{color:var(--gold-soft);border-bottom-color:var(--gold)}
+
+/* ---------- ESTRUCTURA ---------- */
+main{max-width:1100px;margin:0 auto;padding:24px 18px 60px}
+section.bloque{margin:38px 0;scroll-margin-top:80px}
+.bloque>h2{font-size:1.7rem;border-left:6px solid var(--gold);padding-left:14px;margin-bottom:14px}
+.bloque>h3{font-size:1.2rem;margin:22px 0 8px}
+.tarjeta{background:var(--white);border-radius:12px;box-shadow:var(--card-shadow);padding:22px;margin:16px 0}
+.dos-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.dos-col{grid-template-columns:1fr}}
+p{margin:10px 0}
+.nota{background:#FBF6E7;border-left:4px solid var(--gold);padding:12px 16px;border-radius:0 8px 8px 0;font-size:.95rem;margin:14px 0}
+.cita{font-size:.85rem;color:var(--gris);font-style:italic}
+table.tabla{width:100%;border-collapse:collapse;margin:14px 0;background:var(--white);font-size:.95rem}
+table.tabla th{background:var(--navy);color:var(--white);padding:10px;text-align:left}
+table.tabla td{padding:9px 10px;border-bottom:1px solid #E3E1DA}
+table.tabla tr:nth-child(even) td{background:#F2F0EA}
+figure{margin:16px 0;text-align:center}
+figcaption{font-size:.88rem;color:var(--gris);margin-top:6px}
+.svg-marco{background:var(--white);border-radius:12px;box-shadow:var(--card-shadow);padding:10px}
+
+/* ---------- CONTROLES INTERACTIVOS ---------- */
+.controles{display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.controles label{font-weight:bold;color:var(--navy);font-size:.95rem}
+.controles input[type=range]{accent-color:var(--gold);width:180px;vertical-align:middle}
+.controles select,.controles button{font-family:inherit;font-size:.95rem;padding:7px 14px;border-radius:8px;border:1.5px solid var(--navy)}
+.controles button, button.btn{background:var(--navy);color:var(--white);cursor:pointer;transition:.2s;border:none;padding:9px 18px;border-radius:8px;font-size:.95rem}
+.controles button:hover, button.btn:hover{background:var(--gold);color:var(--navy-dark)}
+.valor{display:inline-block;min-width:70px;font-weight:bold;color:var(--gold);background:var(--navy);border-radius:6px;padding:2px 10px;text-align:center}
+.leyenda-estado{font-weight:bold;padding:4px 12px;border-radius:20px;display:inline-block;margin-top:6px}
+.estado-estable{background:#E2F0E4;color:var(--ok)}
+.estado-inestable{background:#F8E3DE;color:var(--bad)}
+.estado-limite{background:#FBF0D3;color:#8A6D10}
+
+/* ---------- GALERÍA ---------- */
+.galeria{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.gal-item{background:var(--white);border-radius:12px;box-shadow:var(--card-shadow);overflow:hidden;transition:transform .2s}
+.gal-item:hover{transform:translateY(-4px)}
+.gal-item svg{display:block;width:100%;height:auto}
+.gal-item .pie{padding:12px 14px}
+.gal-item .pie h4{font-size:1rem;margin-bottom:2px}
+.gal-item .pie p{font-size:.85rem;color:var(--gris);margin:0}
+.etiqueta{display:inline-block;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;background:var(--gold);color:var(--navy-dark);border-radius:4px;padding:2px 8px;font-weight:bold;margin-bottom:6px}
+
+/* ---------- QUIZ ---------- */
+.pregunta{background:var(--white);border-radius:12px;box-shadow:var(--card-shadow);padding:18px 20px;margin:14px 0}
+.pregunta h4{font-size:1.02rem;margin-bottom:10px}
+.opcion{display:block;margin:7px 0;padding:10px 14px;border:1.5px solid #D8D5CC;border-radius:8px;cursor:pointer;transition:.15s;background:#FCFBF8}
+.opcion:hover{border-color:var(--gold);background:#FBF6E7}
+.opcion input{margin-right:10px;accent-color:var(--navy)}
+.opcion.correcta{border-color:var(--ok);background:#E2F0E4}
+.opcion.incorrecta{border-color:var(--bad);background:#F8E3DE}
+.retro{display:none;margin-top:10px;padding:12px;border-radius:8px;font-size:.93rem}
+.retro.bien{display:block;background:#E2F0E4;border-left:4px solid var(--ok)}
+.retro.mal{display:block;background:#F8E3DE;border-left:4px solid var(--bad)}
+#resultadoQuiz{display:none;text-align:center;padding:24px}
+#resultadoQuiz .puntaje{font-family:Cambria,serif;font-size:2.6rem;color:var(--navy);font-weight:bold}
+.acciones-quiz{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+/* ---------- GLOSARIO / REFERENCIAS ---------- */
+details.glos{background:var(--white);border-radius:10px;box-shadow:var(--card-shadow);margin:8px 0;padding:0}
+details.glos summary{cursor:pointer;padding:12px 16px;font-weight:bold;color:var(--navy);list-style:none}
+details.glos summary::before{content:"▸ ";color:var(--gold)}
+details.glos[open] summary::before{content:"▾ "}
+details.glos div{padding:0 16px 14px;font-size:.95rem}
+.ref{padding-left:2.2em;text-indent:-2.2em;margin:10px 0;font-size:.95rem}
+a.enlace{color:var(--navy);font-weight:bold;text-decoration:underline;text-decoration-color:var(--gold)}
+a.enlace:hover{color:var(--gold)}
+
+footer{background:var(--navy-dark);color:#C7D1DE;text-align:center;padding:26px 16px;font-size:.9rem}
+footer .oro{color:var(--gold-soft)}
+
+/* ---------- IMPRESIÓN ---------- */
+@media print{
+  nav#menu,.controles,.acciones-quiz,#btnTop,.no-print{display:none!important}
+  body{background:#fff}
+  header.hero{background:var(--navy)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tarjeta,.pregunta,.gal-item{box-shadow:none;border:1px solid #ccc;page-break-inside:avoid}
+  section.bloque{page-break-inside:avoid}
+}
+#btnTop{position:fixed;right:18px;bottom:18px;background:var(--gold);color:var(--navy-dark);border:none;border-radius:50%;width:46px;height:46px;font-size:1.3rem;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.3);display:none;z-index:60}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<!-- ============ 1. ENCABEZADO ============ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="logo-box" aria-hidden="true">
+      <!-- Monograma institucional (esquema propio; sustituir por logotipos oficiales UANL/FCB si se dispone de los archivos) -->
+      <svg class="logo-svg" viewBox="0 0 80 80" role="img" aria-label="UANL">
+        <circle cx="40" cy="40" r="38" fill="#F7F6F2"/>
+        <circle cx="40" cy="40" r="38" fill="none" stroke="#C9A227" stroke-width="3"/>
+        <text x="40" y="37" text-anchor="middle" font-family="Cambria,serif" font-size="20" font-weight="bold" fill="#1E3A5F">UANL</text>
+        <text x="40" y="56" text-anchor="middle" font-family="Cambria,serif" font-size="13" fill="#C9A227">FCB</text>
+      </svg>
+      <svg class="logo-svg" viewBox="0 0 80 80" role="img" aria-label="LCA - Licenciatura en Ciencia de Alimentos">
+        <rect x="4" y="4" width="72" height="72" rx="12" fill="#1E3A5F"/>
+        <circle cx="28" cy="34" r="9" fill="none" stroke="#C9A227" stroke-width="2.5"/>
+        <circle cx="47" cy="30" r="5" fill="#C9A227" opacity=".85"/>
+        <circle cx="52" cy="44" r="7" fill="none" stroke="#E4CE8A" stroke-width="2"/>
+        <circle cx="34" cy="50" r="4" fill="#E4CE8A"/>
+        <text x="40" y="68" text-anchor="middle" font-family="Cambria,serif" font-size="12" fill="#F7F6F2">LCA 430</text>
+      </svg>
+    </div>
+    <div class="hero-text">
+      <div class="curso">Dispersiones y Reología de Alimentos · Fase 1</div>
+      <h1>Estabilidad de Sistemas Dispersos en Alimentos</h1>
+      <p class="prof">Profesor responsable: <strong>Dr. Juan Gabriel Báez González</strong></p>
+      <p class="inst">Facultad de Ciencias Biológicas · Universidad Autónoma de Nuevo León · Licenciatura en Ciencia de Alimentos</p>
+    </div>
+  </div>
+</header>
+
+<!-- ============ NAVEGACIÓN ============ -->
+<nav id="menu" aria-label="Navegación principal">
+  <ul>
+    <li><a href="#intro">Introducción</a></li>
+    <li><a href="#zeta">Potencial zeta</a></li>
+    <li><a href="#esterica">Estab. estérica</a></li>
+    <li><a href="#electrostatica">Estab. electrostática</a></li>
+    <li><a href="#multimedia">Simuladores</a></li>
+    <li><a href="#galeria">Galería</a></li>
+    <li><a href="#quiz">Autoevaluación</a></li>
+    <li><a href="#recursos">Recursos</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- ============ 2. INTRODUCCIÓN ============ -->
+<section class="bloque" id="intro">
+  <h2>Introducción</h2>
+  <div class="tarjeta">
+    <p>La mayor parte de los alimentos procesados no son fases homogéneas, sino <strong>sistemas dispersos (dispersed systems)</strong>: una fase finamente dividida —la <strong>fase dispersa</strong>— distribuida dentro de otra fase que la rodea —la <strong>fase continua</strong>—. La mayonesa es una emulsión de gotas de aceite en agua (O/W), las gomitas son geles donde una red de gelatina atrapa la fase acuosa, el pan es una espuma sólida y la leche combina una emulsión con una dispersión coloidal de micelas de caseína. Estos sistemas son <em>termodinámicamente inestables</em>: tarde o temprano tienden a separarse en sus fases originales. Por eso, el trabajo del tecnólogo de alimentos no es evitar la inestabilidad —imposible— sino <strong>retrasarla lo suficiente</strong> para que el producto conserve su apariencia, textura y funcionalidad durante toda su vida de anaquel.</p>
+    <p>Lograrlo exige entender <strong>qué fuerzas mantienen separadas a las partículas o gotas</strong> y qué condiciones del medio (pH, fuerza iónica, tipo y concentración de estabilizante) las debilitan. En esta página estudiaremos tres conceptos centrales de la Fase 1 del curso: el <strong>potencial zeta (zeta potential, ζ)</strong> como indicador medible de la carga efectiva de las partículas, la <strong>estabilización estérica (steric stabilization)</strong> por polímeros y surfactantes adsorbidos, y la <strong>estabilización electrostática (electrostatic stabilization)</strong> que surge de la doble capa eléctrica. Cada sección incluye diagramas, simuladores interactivos y ejemplos con alimentos reales del curso: mayonesa, gomitas, espumas de panificación y leche.</p>
+  </div>
+</section>
+
+<!-- ============ 3a. POTENCIAL ZETA ============ -->
+<section class="bloque" id="zeta">
+  <h2>Potencial zeta (ζ)</h2>
+
+  <div class="tarjeta">
+    <h3>Definición y fundamento</h3>
+    <p>Cuando una partícula o gota cargada se mueve en un medio acuoso (por ejemplo, durante una medición de electroforesis), arrastra consigo los iones más fuertemente unidos a su superficie. La frontera hidrodinámica entre lo que se mueve con la partícula y el líquido que queda atrás se llama <strong>plano de corte (shear plane)</strong>. El <strong>potencial zeta</strong> es el potencial eléctrico medido justo en ese plano, y se determina experimentalmente por métodos electrocinéticos (electrophoretic light scattering en los equipos comerciales tipo Zetasizer). En la práctica se toma como una buena aproximación del potencial de la capa de Stern, que no es accesible directamente (Cosgrove, 2010, pp. 36–37, 53).</p>
+    <p>¿Por qué importa? Porque la repulsión electrostática entre dos partículas depende del <em>cuadrado</em> del potencial superficial: duplicar el potencial zeta cuadruplica la barrera de energía que impide la agregación (Cosgrove, 2010, p. 53). El potencial zeta es, por tanto, el parámetro medible que conecta la química del medio (pH, sales) con la estabilidad real de la dispersión.</p>
+  </div>
+
+  <div class="dos-col">
+    <figure class="svg-marco">
+      <svg viewBox="0 0 460 340" role="img" aria-label="Diagrama de la doble capa eléctrica y el plano de corte">
+        <defs>
+          <radialGradient id="gPart" cx="35%" cy="35%"><stop offset="0%" stop-color="#3D6392"/><stop offset="100%" stop-color="#1E3A5F"/></radialGradient>
+        </defs>
+        <rect width="460" height="340" fill="#F7F6F2"/>
+        <!-- partícula -->
+        <circle cx="120" cy="170" r="78" fill="url(#gPart)"/>
+        <text x="120" y="165" text-anchor="middle" fill="#F7F6F2" font-family="Cambria,serif" font-size="15" font-weight="bold">Partícula</text>
+        <text x="120" y="184" text-anchor="middle" fill="#E4CE8A" font-size="12">(gota de aceite,</text>
+        <text x="120" y="199" text-anchor="middle" fill="#E4CE8A" font-size="12">micela de caseína…)</text>
+        <!-- cargas superficiales negativas -->
+        <g fill="#C9A227" font-size="13" font-weight="bold">
+          <circle cx="198" cy="140" r="8" fill="#C9A227"/><text x="198" y="144" text-anchor="middle" fill="#1E3A5F">−</text>
+          <circle cx="202" cy="172" r="8" fill="#C9A227"/><text x="202" y="176" text-anchor="middle" fill="#1E3A5F">−</text>
+          <circle cx="196" cy="204" r="8" fill="#C9A227"/><text x="196" y="208" text-anchor="middle" fill="#1E3A5F">−</text>
+          <circle cx="184" cy="112" r="8" fill="#C9A227"/><text x="184" y="116" text-anchor="middle" fill="#1E3A5F">−</text>
+          <circle cx="182" cy="230" r="8" fill="#C9A227"/><text x="182" y="234" text-anchor="middle" fill="#1E3A5F">−</text>
+        </g>
+        <!-- capa de Stern: contraiones fijos -->
+        <g font-size="12" font-weight="bold">
+          <circle cx="222" cy="126" r="7" fill="#8FA8C6"/><text x="222" y="130" text-anchor="middle" fill="#fff">+</text>
+          <circle cx="228" cy="158" r="7" fill="#8FA8C6"/><text x="228" y="162" text-anchor="middle" fill="#fff">+</text>
+          <circle cx="228" cy="190" r="7" fill="#8FA8C6"/><text x="228" y="194" text-anchor="middle" fill="#fff">+</text>
+          <circle cx="220" cy="220" r="7" fill="#8FA8C6"/><text x="220" y="224" text-anchor="middle" fill="#fff">+</text>
+        </g>
+        <!-- capa difusa -->
+        <g font-size="11" font-weight="bold" opacity=".8">
+          <circle cx="268" cy="110" r="6" fill="#8FA8C6"/><text x="268" y="114" text-anchor="middle" fill="#fff">+</text>
+          <circle cx="285" cy="150" r="6" fill="#8FA8C6"/><text x="285" y="154" text-anchor="middle" fill="#fff">+</text>
+          <circle cx="276" cy="195" r="6" fill="#8FA8C6"/><text x="276" y="199" text-anchor="middle" fill="#fff">+</text>
+          <circle cx="292" cy="235" r="6" fill="#8FA8C6"/><text x="292" y="239" text-anchor="middle" fill="#fff">+</text>
+          <circle cx="315" cy="120" r="6" fill="#D9A69B"/><text x="315" y="124" text-anchor="middle" fill="#fff">−</text>
+          <circle cx="322" cy="178" r="6" fill="#8FA8C6"/><text x="322" y="182" text-anchor="middle" fill="#fff">+</text>
+          <circle cx="330" cy="220" r="6" fill="#D9A69B"/><text x="330" y="224" text-anchor="middle" fill="#fff">−</text>
+          <circle cx="360" cy="140" r="6" fill="#D9A69B"/><text x="360" y="144" text-anchor="middle" fill="#fff">−</text>
+          <circle cx="368" cy="195" r="6" fill="#8FA8C6"/><text x="368" y="199" text-anchor="middle" fill="#fff">+</text>
+        </g>
+        <!-- planos -->
+        <line x1="240" y1="60" x2="240" y2="280" stroke="#1E3A5F" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="240" y="52" text-anchor="middle" font-size="12" fill="#1E3A5F" font-weight="bold">Capa de Stern</text>
+        <line x1="262" y1="70" x2="262" y2="280" stroke="#C9A227" stroke-width="2.5"/>
+        <text x="288" y="66" text-anchor="middle" font-size="12" fill="#8A6D10" font-weight="bold">Plano de corte → ζ</text>
+        <line x1="390" y1="80" x2="390" y2="280" stroke="#9AA5B1" stroke-width="1.5" stroke-dasharray="3 5"/>
+        <text x="392" y="72" text-anchor="middle" font-size="11" fill="#6B7280">Seno del líquido</text>
+        <!-- flecha capa difusa -->
+        <line x1="262" y1="300" x2="390" y2="300" stroke="#1E3A5F" stroke-width="1.5" marker-end="url(#fl)"/>
+        <defs><marker id="fl" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#1E3A5F"/></marker></defs>
+        <text x="326" y="318" text-anchor="middle" font-size="12" fill="#1E3A5F">Capa difusa (espesor ≈ 1/κ)</text>
+      </svg>
+      <figcaption>Fig. 1. Doble capa eléctrica: el potencial zeta se mide en el plano de corte, muy cercano a la capa de Stern. Elaboración propia con base en Cosgrove (2010, cap. 2, pp. 36–37).</figcaption>
+    </figure>
+
+    <div class="tarjeta">
+      <h3>Interpretación de valores</h3>
+      <p>El signo indica el tipo de carga neta y la <strong>magnitud</strong> |ζ| indica cuánta repulsión electrostática puede esperarse. Como criterio orientativo derivado del análisis de Cosgrove (2010, p. 53) para látex de polímero en NaCl 1&nbsp;mM:</p>
+      <table class="tabla">
+        <tr><th>|ζ| aproximado</th><th>Interpretación</th></tr>
+        <tr><td>&lt; 20 mV</td><td>Barrera energética baja: agregación significativa esperable</td></tr>
+        <tr><td>≈ 25 mV</td><td>Barrera ≈ 40 k<sub>B</sub>T: dispersión estable en ese sistema modelo</td></tr>
+        <tr><td>≈ 50 mV</td><td>Barrera ≈ 160 k<sub>B</sub>T: dispersión muy estable (V<sub>R</sub> ∝ ζ²)</td></tr>
+      </table>
+      <p class="cita">Los umbrales exactos dependen del sistema (tamaño de partícula, constante de Hamaker, fuerza iónica); no son valores universales.</p>
+      <h3>Medición en dispersiones reales</h3>
+      <p>En alimentos, el potencial zeta se mide típicamente en <strong>emulsiones O/W diluidas</strong> (aderezos, leche, bebidas) para: (a) localizar el <strong>punto isoeléctrico</strong> de gotas estabilizadas con proteína —el pH donde ζ ≈ 0 y la emulsión flocula—, (b) verificar el efecto de agregar sales o hidrocoloides cargados, y (c) comparar emulsificantes. En la práctica P2 (mayonesa) este concepto explica por qué el vinagre o el jugo de limón, al fijar el pH lejos del punto isoeléctrico de las proteínas de la yema, contribuyen a la carga de las gotas.</p>
+    </div>
+  </div>
+
+  <div class="nota"><strong>Idea clave:</strong> ζ no es la carga superficial "verdadera", sino el potencial <em>efectivo</em> en el plano de corte — que es justamente el que gobierna cómo interactúan las partículas entre sí.</div>
+</section>
+
+<!-- ============ 3b. ESTABILIDAD ESTÉRICA ============ -->
+<section class="bloque" id="esterica">
+  <h2>Estabilidad estérica</h2>
+
+  <div class="tarjeta">
+    <h3>Mecanismo de acción</h3>
+    <p>En la <strong>estabilización estérica (steric stabilization)</strong>, cadenas de polímero o surfactante adsorbidas sobre la superficie de la partícula forman una capa que se extiende hacia el medio. Cuando dos partículas se acercan, sus capas poliméricas comienzan a traslaparse o comprimirse: las cadenas pierden libertad de configuración (efecto entrópico) y aumenta localmente la concentración de polímero (efecto osmótico, si el disolvente es "bueno" para las cadenas). El resultado es una <strong>repulsión de corto alcance muy intensa</strong> que impide que las partículas lleguen a la distancia donde dominan las fuerzas atractivas de van der Waals.</p>
+    <p>A diferencia de la repulsión electrostática, este mecanismo <strong>no depende de la carga</strong>: funciona a alta fuerza iónica y en un intervalo amplio de pH. Por eso es el mecanismo dominante en muchos alimentos, donde el medio acuoso suele contener sales, ácidos y azúcares.</p>
+  </div>
+
+  <div class="dos-col">
+    <div class="tarjeta">
+      <h3>Tipos de agentes estéricos</h3>
+      <p>Para lograr una capa estérica eficaz, el estabilizante necesita un segmento que se <em>ancle</em> a la superficie (A) y segmentos que se <em>extiendan</em> hacia el disolvente (B). Cosgrove (2010, §9.3.2, pp. 186–187) resume las arquitecturas más usadas:</p>
+      <table class="tabla">
+        <tr><th>Arquitectura</th><th>Ejemplo alimentario</th></tr>
+        <tr><td>Copolímero en bloque BAB o de injerto</td><td>Proteínas adsorbidas (caseínas, proteínas de yema en mayonesa): segmentos hidrofóbicos anclan, segmentos hidrofílicos se extienden</td></tr>
+        <tr><td>Polímero adsorbido con múltiples puntos de anclaje</td><td>Gomas y polisacáridos superficialmente activos (goma arábiga en emulsiones de bebidas)</td></tr>
+        <tr><td>Surfactante: cabeza ancla + cola extendida</td><td>Ésteres de sorbitán etoxilados (polisorbatos) en aderezos y helados</td></tr>
+      </table>
+    </div>
+    <div class="tarjeta">
+      <h3>Efecto del tipo, concentración y disposición</h3>
+      <p>Según Cosgrove (2010, pp. 186–187), una estabilización estérica eficaz requiere <strong>cuatro condiciones simultáneas</strong>:</p>
+      <p>① <strong>Alta cobertura superficial:</strong> con cobertura baja, una misma cadena puede adsorberse sobre dos partículas a la vez y provocar <em>floculación por puenteo (bridging flocculation)</em> — el estabilizante se convierte en floculante.<br>
+      ② <strong>Adsorción fuerte:</strong> si el ancla es débil, la capa se desorbe bajo esfuerzo (bombeo, homogeneización).<br>
+      ③ <strong>Buen disolvente para las cadenas:</strong> si la calidad del disolvente empeora (cambio de temperatura, adición de sales o alcohol), la capa colapsa y la repulsión desaparece.<br>
+      ④ <strong>Baja concentración de polímero libre:</strong> el polímero <em>no adsorbido</em> en exceso induce <em>floculación por agotamiento (depletion flocculation)</em>.</p>
+      <p class="cita">Consecuencia práctica: más hidrocoloide no siempre significa más estabilidad; existe una ventana óptima de concentración.</p>
+    </div>
+  </div>
+
+  <figure class="svg-marco">
+    <svg viewBox="0 0 760 250" role="img" aria-label="Tres escenarios de estabilización estérica según la cobertura del polímero">
+      <rect width="760" height="250" fill="#F7F6F2"/>
+      <g font-family="Calibri,sans-serif">
+      <!-- Escenario 1: cobertura alta -->
+      <text x="126" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#2E7D32">Cobertura alta → estable</text>
+      <circle cx="88" cy="120" r="34" fill="#1E3A5F"/><circle cx="168" cy="120" r="34" fill="#1E3A5F"/>
+      <g stroke="#C9A227" stroke-width="2.4" fill="none" stroke-linecap="round">
+        <path d="M118,100 q14,-6 22,-14"/><path d="M122,112 q16,-2 26,-6"/><path d="M124,124 q16,2 26,4"/><path d="M120,138 q14,6 22,12"/>
+        <path d="M138,100 q-14,-6 -22,-14"/><path d="M134,112 q-16,-2 -26,-6"/><path d="M132,124 q-16,2 -26,4"/><path d="M136,138 q-14,6 -22,12"/>
+        <path d="M60,96 q-12,-8 -16,-18"/><path d="M56,120 q-14,0 -22,-4"/><path d="M60,144 q-12,8 -18,16"/>
+        <path d="M196,96 q12,-8 16,-18"/><path d="M200,120 q14,0 22,-4"/><path d="M196,144 q12,8 18,16"/>
+      </g>
+      <text x="128" y="196" text-anchor="middle" font-size="12" fill="#2B2B2B">Las capas se repelen al</text>
+      <text x="128" y="212" text-anchor="middle" font-size="12" fill="#2B2B2B">comprimirse: no hay contacto</text>
+      <!-- Escenario 2: cobertura baja / puenteo -->
+      <text x="380" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#B3402A">Cobertura baja → puenteo</text>
+      <circle cx="340" cy="120" r="34" fill="#1E3A5F"/><circle cx="420" cy="120" r="34" fill="#1E3A5F"/>
+      <path d="M352,92 C375,70 390,70 410,92" stroke="#C9A227" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M350,150 C372,172 392,172 412,150" stroke="#C9A227" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <text x="380" y="196" text-anchor="middle" font-size="12" fill="#2B2B2B">Una misma cadena une dos</text>
+      <text x="380" y="212" text-anchor="middle" font-size="12" fill="#2B2B2B">partículas: flocula (bridging)</text>
+      <!-- Escenario 3: exceso de polímero libre -->
+      <text x="632" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#B3402A">Exceso libre → agotamiento</text>
+      <circle cx="596" cy="120" r="34" fill="#1E3A5F"/><circle cx="668" cy="120" r="34" fill="#1E3A5F"/>
+      <g fill="none" stroke="#C9A227" stroke-width="2" opacity=".85">
+        <circle cx="548" cy="70" r="9"/><circle cx="700" cy="62" r="9"/><circle cx="720" cy="120" r="9"/>
+        <circle cx="545" cy="150" r="9"/><circle cx="580" cy="200" r="9"/><circle cx="690" cy="188" r="9"/>
+        <circle cx="632" cy="52" r="9"/><circle cx="632" cy="196" r="9"/><circle cx="540" cy="110" r="9"/>
+      </g>
+      <text x="632" y="222" text-anchor="middle" font-size="12" fill="#2B2B2B">El polímero libre "empuja" las partículas a juntarse (depletion)</text>
+      </g>
+    </svg>
+    <figcaption>Fig. 2. La concentración y disposición del polímero deciden si estabiliza o flocula. Elaboración propia con base en Cosgrove (2010, cap. 9, pp. 186–193).</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 3c. ESTABILIDAD ELECTROSTÁTICA ============ -->
+<section class="bloque" id="electrostatica">
+  <h2>Estabilidad electrostática</h2>
+
+  <div class="tarjeta">
+    <h3>Origen: la doble capa eléctrica</h3>
+    <p>Las superficies de gotas y partículas en alimentos adquieren carga por ionización de grupos superficiales (–COOH, –NH₂ de proteínas; grupos fosfato) o por adsorción de emulsificantes iónicos (por ejemplo, lecitina). Esa carga superficial atrae una atmósfera de contraiones: unos quedan casi fijos (capa de Stern) y el resto forma la <strong>capa difusa (diffuse layer)</strong>, cuyo espesor característico es la <strong>longitud de Debye (1/κ)</strong>. Cuando dos partículas se aproximan, sus capas difusas se traslapan; la concentración local de iones entre ellas supera la del seno del líquido y la presión osmótica resultante las empuja a separarse: esa es la <strong>repulsión electrostática</strong> (Cosgrove, 2010, pp. 47–48).</p>
+  </div>
+
+  <div class="dos-col">
+    <div class="tarjeta">
+      <h3>Efecto de la fuerza iónica</h3>
+      <p>Agregar sal <strong>comprime la doble capa</strong>: los contraiones apantallan la carga a distancias cada vez más cortas y la repulsión pierde alcance. Cosgrove (2010, p. 48, Tabla 3.2) reporta el espesor de la doble capa en función de la concentración de NaCl:</p>
+      <table class="tabla">
+        <tr><th>NaCl</th><th>Espesor de doble capa (1/κ)</th></tr>
+        <tr><td>0.1 mM</td><td>30 nm</td></tr>
+        <tr><td>1 mM</td><td>10 nm</td></tr>
+        <tr><td>10 mM</td><td>3 nm</td></tr>
+        <tr><td>30 mM</td><td>2 nm</td></tr>
+      </table>
+      <p>Además, la <strong>valencia del contraión</strong> importa muchísimo (regla de Schulze–Hardy): iones divalentes (Ca²⁺) y trivalentes coagulan a concentraciones muchísimo menores que los monovalentes (Na⁺) (Cosgrove, 2010, pp. 52–53). Por eso el calcio desestabiliza con facilidad emulsiones y dispersiones proteicas.</p>
+    </div>
+    <div class="tarjeta">
+      <h3>Efecto del pH</h3>
+      <p>En sistemas estabilizados con proteínas —el caso más común en alimentos— la carga superficial depende del pH relativo al <strong>punto isoeléctrico (isoelectric point, pI)</strong> de la proteína adsorbida:</p>
+      <p>• <strong>pH &gt; pI:</strong> carga neta negativa (ζ &lt; 0).<br>
+      • <strong>pH ≈ pI:</strong> carga neta ≈ 0 → ζ ≈ 0 → la repulsión desaparece y el sistema <strong>flocula</strong>.<br>
+      • <strong>pH &lt; pI:</strong> carga neta positiva (ζ &gt; 0).</p>
+      <p>La agregación ocurre cuando la carga superficial se reduce (pH cercano al pI) o cuando la repulsión queda apantallada por electrolito añadido (Cosgrove, 2010, p. 127). Ejemplo del curso: la leche flocula al acidificarse hacia el pI de las caseínas — el mismo principio que desestabiliza una mayonesa mal acidificada.</p>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <h3>Comparación: electrostática vs. estérica</h3>
+    <table class="tabla">
+      <tr><th></th><th>Estabilización electrostática</th><th>Estabilización estérica</th></tr>
+      <tr><td><strong>Origen</strong></td><td>Traslape de dobles capas eléctricas (osmótico-iónico)</td><td>Compresión/traslape de capas poliméricas (entrópico-osmótico)</td></tr>
+      <tr><td><strong>Alcance</strong></td><td>Largo (decenas de nm a baja fuerza iónica)</td><td>Corto (≈ espesor de la capa adsorbida)</td></tr>
+      <tr><td><strong>Sensible a sales</strong></td><td>Sí, muy sensible (compresión de la doble capa; Schulze–Hardy)</td><td>Poco sensible (mientras el disolvente siga siendo bueno)</td></tr>
+      <tr><td><strong>Sensible a pH</strong></td><td>Sí, colapsa en el punto isoeléctrico</td><td>Poco sensible</td></tr>
+      <tr><td><strong>Ejemplo alimentario</strong></td><td>Gotas con emulsificante iónico o proteína lejos de su pI</td><td>Gotas cubiertas de goma arábiga o polisorbatos</td></tr>
+      <tr><td><strong>Indicador medible</strong></td><td>Potencial zeta</td><td>Espesor de capa adsorbida / tamaño hidrodinámico</td></tr>
+    </table>
+    <p>En la realidad ambos mecanismos suelen coexistir: una proteína adsorbida aporta carga <em>y</em> volumen — la llamada <strong>estabilización electroestérica (electro-steric)</strong> (Cosgrove, 2010, p. 127). Las caseínas de la leche son el ejemplo clásico.</p>
+  </div>
+</section>
+
+<!-- ============ 4. MULTIMEDIA / SIMULADORES ============ -->
+<section class="bloque" id="multimedia">
+  <h2>Simuladores interactivos</h2>
+  <p class="nota no-print"><strong>Nota:</strong> las curvas y animaciones de esta sección son <strong>esquemas ilustrativos</strong> del comportamiento cualitativo; no representan datos experimentales de un sistema específico.</p>
+
+  <!-- SIM 1: zeta vs pH -->
+  <div class="tarjeta">
+    <h3>Simulador 1 · Curva de potencial zeta vs. pH</h3>
+    <p>Mueve los controles y observa cómo el punto isoeléctrico y la fuerza iónica cambian la curva ζ–pH de una emulsión estabilizada con proteína. La franja gris marca la zona de baja repulsión (|ζ| &lt; 20 mV) donde la floculación es probable.</p>
+    <div class="controles">
+      <label>pH del medio: <input type="range" id="sPH" min="2" max="9" step="0.1" value="3.8"> <span class="valor" id="vPH">3.8</span></label>
+      <label>pI de la proteína: <input type="range" id="sPI" min="3.5" max="6.5" step="0.1" value="5.0"> <span class="valor" id="vPI">5.0</span></label>
+      <label>Fuerza iónica: <select id="sFI"><option value="1">Baja (sin sal añadida)</option><option value="0.65">Media</option><option value="0.38">Alta (salmuera)</option></select></label>
+    </div>
+    <div class="svg-marco"><svg id="grafZeta" viewBox="0 0 640 360" width="100%" role="img" aria-label="Gráfica interactiva de potencial zeta contra pH"></svg></div>
+    <p id="lecturaZeta" style="margin-top:10px"></p>
+  </div>
+
+  <!-- SIM 2: doble capa -->
+  <div class="tarjeta">
+    <h3>Simulador 2 · Compresión de la doble capa por sal</h3>
+    <p>Aumenta la concentración de NaCl y observa cómo se encoge la capa difusa (valores de espesor tomados de Cosgrove, 2010, p. 48, Tabla 3.2) hasta permitir que las partículas se acerquen y agreguen.</p>
+    <div class="controles">
+      <label>NaCl: <input type="range" id="sSal" min="0" max="3" step="1" value="0"> <span class="valor" id="vSal">0.1 mM</span></label>
+      <span id="vEspesor" class="leyenda-estado estado-estable">Doble capa: 30 nm — repulsión de largo alcance</span>
+    </div>
+    <div class="svg-marco"><svg id="grafCapa" viewBox="0 0 640 260" width="100%" role="img" aria-label="Animación de dos partículas con sus dobles capas eléctricas"></svg></div>
+  </div>
+
+  <!-- SIM 3: esterica -->
+  <div class="tarjeta">
+    <h3>Simulador 3 · Cobertura estérica: ¿estabiliza o flocula?</h3>
+    <p>Cambia la cobertura superficial del polímero y presiona <em>Acercar partículas</em> para ver el desenlace.</p>
+    <div class="controles">
+      <label>Cobertura: <select id="sCob"><option value="alta">Alta (monocapa completa)</option><option value="baja">Baja (parcial)</option></select></label>
+      <button class="btn" id="btnChoque" type="button">Acercar partículas</button>
+      <span id="vCob" class="leyenda-estado estado-estable">Capas completas: repulsión estérica</span>
+    </div>
+    <div class="svg-marco"><svg id="grafEst" viewBox="0 0 640 240" width="100%" role="img" aria-label="Animación de estabilización estérica"></svg></div>
+  </div>
+</section>
+
+<!-- ============ GALERÍA ============ -->
+<section class="bloque" id="galeria">
+  <h2>Galería: dispersiones en alimentos reales</h2>
+  <p>Esquemas de la microestructura de cuatro alimentos del curso (elaboración propia; clasificación conforme a McClements, 2016, cap. 1).</p>
+  <div class="galeria">
+
+    <div class="gal-item">
+      <svg viewBox="0 0 300 190" role="img" aria-label="Esquema de mayonesa: emulsión aceite en agua">
+        <rect width="300" height="190" fill="#FDF8EC"/>
+        <g fill="#E8C64A" stroke="#C9A227" stroke-width="2">
+          <circle cx="60" cy="60" r="30"/><circle cx="140" cy="50" r="24"/><circle cx="215" cy="65" r="33"/>
+          <circle cx="85" cy="130" r="26"/><circle cx="165" cy="125" r="31"/><circle cx="245" cy="140" r="24"/>
+          <circle cx="270" cy="55" r="14"/><circle cx="25" cy="150" r="15"/><circle cx="120" cy="168" r="12"/>
+        </g>
+        <text x="150" y="22" text-anchor="middle" font-size="13" fill="#1E3A5F" font-weight="bold" font-family="Calibri,sans-serif">Gotas de aceite (φ ≈ 0.75) en fase acuosa</text>
+      </svg>
+      <div class="pie"><span class="etiqueta">Emulsión O/W</span><h4>Mayonesa (Práctica 2)</h4><p>Gotas de aceite estabilizadas por proteínas y fosfolípidos de la yema: estabilización electroestérica.</p></div>
+    </div>
+
+    <div class="gal-item">
+      <svg viewBox="0 0 300 190" role="img" aria-label="Esquema de gomita: gel con red polimérica">
+        <rect width="300" height="190" fill="#F3E9F0"/>
+        <g stroke="#1E3A5F" stroke-width="2.2" fill="none" stroke-linecap="round">
+          <path d="M20,40 C70,10 110,80 160,50 S260,20 290,55"/>
+          <path d="M10,95 C60,65 120,130 175,95 S255,70 295,105"/>
+          <path d="M20,150 C75,115 125,180 180,145 S260,125 290,160"/>
+          <path d="M55,15 C40,70 80,110 60,175"/><path d="M150,12 C135,70 175,115 155,180"/><path d="M240,15 C225,70 260,120 242,178"/>
+        </g>
+        <g fill="#C9A227"><circle cx="60" cy="42" r="5"/><circle cx="157" cy="52" r="5"/><circle cx="243" cy="40" r="5"/><circle cx="62" cy="148" r="5"/><circle cx="178" cy="146" r="5"/><circle cx="153" cy="97" r="5"/></g>
+        <text x="150" y="185" text-anchor="middle" font-size="12" fill="#1E3A5F" font-weight="bold" font-family="Calibri,sans-serif">Red de gelatina + zonas de unión (●) atrapando agua</text>
+      </svg>
+      <div class="pie"><span class="etiqueta">Gel</span><h4>Gomitas (Práctica 3)</h4><p>Red tridimensional de gelatina que inmoviliza la fase acuosa azucarada.</p></div>
+    </div>
+
+    <div class="gal-item">
+      <svg viewBox="0 0 300 190" role="img" aria-label="Esquema de miga de pan: espuma sólida">
+        <rect width="300" height="190" fill="#F1E4D0"/>
+        <g fill="#FDF8EC" stroke="#C9A227" stroke-width="2">
+          <ellipse cx="65" cy="55" rx="34" ry="28"/><ellipse cx="150" cy="45" rx="26" ry="22"/><ellipse cx="230" cy="60" rx="36" ry="30"/>
+          <ellipse cx="55" cy="135" rx="28" ry="24"/><ellipse cx="140" cy="130" rx="36" ry="30"/><ellipse cx="235" cy="140" rx="28" ry="23"/>
+        </g>
+        <text x="150" y="185" text-anchor="middle" font-size="12" fill="#1E3A5F" font-weight="bold" font-family="Calibri,sans-serif">Celdas de gas en matriz sólida de gluten-almidón</text>
+      </svg>
+      <div class="pie"><span class="etiqueta">Espuma sólida</span><h4>Miga de pan</h4><p>Burbujas de CO₂ retenidas por la película viscoelástica de gluten y fijadas al hornear.</p></div>
+    </div>
+
+    <div class="gal-item">
+      <svg viewBox="0 0 300 190" role="img" aria-label="Esquema de leche: emulsión y dispersión coloidal">
+        <rect width="300" height="190" fill="#EFF3F8"/>
+        <g fill="#E8C64A" stroke="#C9A227" stroke-width="2"><circle cx="70" cy="65" r="26"/><circle cx="205" cy="120" r="30"/></g>
+        <g fill="#1E3A5F" opacity=".85">
+          <circle cx="140" cy="45" r="7"/><circle cx="170" cy="70" r="6"/><circle cx="120" cy="95" r="7"/><circle cx="255" cy="50" r="6"/>
+          <circle cx="60" cy="140" r="6"/><circle cx="110" cy="155" r="7"/><circle cx="160" cy="140" r="6"/><circle cx="270" cy="165" r="7"/><circle cx="240" cy="30" r="7"/>
+        </g>
+        <text x="150" y="185" text-anchor="middle" font-size="12" fill="#1E3A5F" font-weight="bold" font-family="Calibri,sans-serif">Glóbulos de grasa (●grandes) + micelas de caseína (●)</text>
+      </svg>
+      <div class="pie"><span class="etiqueta">Emulsión + sol</span><h4>Leche</h4><p>Sistema mixto: emulsión O/W de glóbulos de grasa y dispersión coloidal de micelas de caseína (electroestéricas).</p></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 5. QUIZ ============ -->
+<section class="bloque" id="quiz">
+  <h2>Autoevaluación</h2>
+  <p>Ocho preguntas de opción múltiple con retroalimentación inmediata. Al terminar podrás imprimir tus resultados o enviarlos por correo.</p>
+  <form id="formQuiz" onsubmit="return false"></form>
+  <div style="text-align:center;margin-top:18px" class="no-print">
+    <button class="btn" id="btnCalificar" type="button">Calificar</button>
+  </div>
+  <div id="resultadoQuiz" class="tarjeta">
+    <h3>Resultado</h3>
+    <div class="puntaje" id="txtPuntaje"></div>
+    <p id="txtMensaje"></p>
+    <div class="acciones-quiz">
+      <button class="btn" type="button" onclick="window.print()">🖨 Imprimir resultados</button>
+      <button class="btn" type="button" id="btnCorreo">✉ Enviar por correo</button>
+      <button class="btn" type="button" id="btnReiniciar">↺ Reiniciar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. RECURSOS ============ -->
+<section class="bloque" id="recursos">
+  <h2>Recursos adicionales</h2>
+
+  <div class="tarjeta">
+    <h3>Referencias bibliográficas (APA 7)</h3>
+    <p class="ref">Cosgrove, T. (Ed.). (2010). <em>Colloid science: Principles, methods and applications</em> (2.ª ed.). Wiley-Blackwell. [Potencial zeta y plano de corte: pp. 36–37, 53; doble capa y fuerza iónica: pp. 47–48; regla de Schulze–Hardy: pp. 52–53; estabilización estérica: pp. 186–193; estabilización electroestérica: p. 127].</p>
+    <p class="ref">McClements, D. J. (2016). <em>Food emulsions: Principles, practices, and techniques</em> (3.ª ed.). CRC Press. [Definición de sistemas dispersos, fase dispersa y continua, tipos de emulsiones: cap. 1, pp. 3–5].</p>
+    <p class="cita">Bibliografía base de la unidad de aprendizaje conforme al programa analítico (Plan 430). Los diagramas señalados como "elaboración propia" fueron desarrollados para este material con base en las fuentes citadas.</p>
+  </div>
+
+  <div class="dos-col">
+    <div class="tarjeta">
+      <h3>Enlaces externos <span class="cita">(requieren conexión a internet)</span></h3>
+      <p>• <a class="enlace" href="https://www.mdpi.com/journal/gels" target="_blank" rel="noopener">MDPI Gels</a> — revista de acceso abierto con artículos sobre geles alimentarios (fuente del banco de artículos TPA del curso).</p>
+      <p>• <a class="enlace" href="https://www.ncbi.nlm.nih.gov/pmc/" target="_blank" rel="noopener">PubMed Central (PMC)</a> — repositorio de acceso abierto para buscar artículos con datos experimentales.</p>
+      <p>• <a class="enlace" href="https://scielo.org" target="_blank" rel="noopener">SciELO</a> — literatura científica iberoamericana de acceso abierto.</p>
+      <p>• <a class="enlace" href="https://www.malvernpanalytical.com/es/products/measurement-type/zeta-potential" target="_blank" rel="noopener">Malvern Panalytical — Potencial zeta</a> — notas técnicas del fabricante del equipo de medición más usado.</p>
+    </div>
+    <div class="tarjeta">
+      <h3>Descargar este material</h3>
+      <p>Esta página es autocontenida: puede guardarse, compartirse en SharePoint o consultarse sin conexión.</p>
+      <p class="no-print"><button class="btn" type="button" onclick="window.print()">⬇ Descargar como PDF (imprimir)</button></p>
+      <p class="cita">En el diálogo de impresión selecciona "Guardar como PDF".</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:26px">Glosario de términos clave</h3>
+  <div id="glosario">
+    <details class="glos"><summary>Capa difusa (diffuse layer)</summary><div>Región de la doble capa eléctrica donde los contraiones se distribuyen por balance entre atracción electrostática y difusión térmica. Su espesor característico es la longitud de Debye (1/κ) y disminuye al aumentar la fuerza iónica.</div></details>
+    <details class="glos"><summary>Doble capa eléctrica (electrical double layer)</summary><div>Estructura de cargas formada por la superficie cargada de la partícula, los contraiones fijos (capa de Stern) y la capa difusa. Su traslape entre partículas vecinas origina la repulsión electrostática.</div></details>
+    <details class="glos"><summary>Fase dispersa / fase continua (dispersed / continuous phase)</summary><div>La fase dividida en gotas, burbujas o partículas es la dispersa; la fase que la rodea es la continua. En mayonesa: aceite (dispersa) en agua (continua).</div></details>
+    <details class="glos"><summary>Floculación por agotamiento (depletion flocculation)</summary><div>Agregación inducida por polímero <em>no adsorbido</em> en exceso: su exclusión del espacio entre dos partículas cercanas genera una presión osmótica que las empuja a juntarse.</div></details>
+    <details class="glos"><summary>Floculación por puenteo (bridging flocculation)</summary><div>Agregación que ocurre cuando la cobertura superficial de polímero es baja y una misma cadena se adsorbe simultáneamente sobre dos partículas, uniéndolas.</div></details>
+    <details class="glos"><summary>Fuerza iónica (ionic strength)</summary><div>Medida de la concentración total de iones del medio, ponderada por el cuadrado de su carga. Al aumentar, comprime la doble capa y reduce el alcance de la repulsión electrostática.</div></details>
+    <details class="glos"><summary>Longitud de Debye (Debye length, 1/κ)</summary><div>Distancia característica sobre la que decae el potencial eléctrico en la capa difusa; se usa como "espesor" de la doble capa (p. ej., 10 nm en NaCl 1 mM).</div></details>
+    <details class="glos"><summary>Punto isoeléctrico (isoelectric point, pI)</summary><div>pH al cual la carga neta de una proteína (y por tanto el potencial zeta de las partículas que recubre) es cero. Cerca del pI la repulsión electrostática colapsa y el sistema flocula.</div></details>
+    <details class="glos"><summary>Potencial zeta (zeta potential, ζ)</summary><div>Potencial eléctrico en el plano de corte de una partícula en movimiento; parámetro medible que aproxima el potencial de Stern y predice la magnitud de la repulsión electrostática (V<sub>R</sub> ∝ ζ²).</div></details>
+    <details class="glos"><summary>Plano de corte (shear plane)</summary><div>Frontera hidrodinámica entre los iones que viajan con la partícula y el líquido circundante; es donde se define el potencial zeta.</div></details>
+    <details class="glos"><summary>Regla de Schulze–Hardy</summary><div>La concentración de electrolito necesaria para coagular una dispersión cargada disminuye drásticamente al aumentar la valencia del contraión (Na⁺ ≫ Ca²⁺ ≫ Al³⁺).</div></details>
+    <details class="glos"><summary>Estabilización electroestérica (electro-steric stabilization)</summary><div>Mecanismo combinado en el que el estabilizante adsorbido (típicamente una proteína o polielectrolito) aporta a la vez repulsión electrostática y estérica.</div></details>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p><span class="oro">Estabilidad de Sistemas Dispersos en Alimentos</span> · UA Dispersiones y Reología de Alimentos (Plan 430)</p>
+  <p>Material didáctico elaborado por el <span class="oro">Dr. Juan Gabriel Báez González</span> · Facultad de Ciencias Biológicas, UANL · 2026</p>
+</footer>
+
+<button id="btnTop" type="button" aria-label="Volver arriba" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+"use strict";
+/* ================= SIM 1: ζ vs pH ================= */
+const svgZ = document.getElementById('grafZeta');
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent, txt){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(txt !== undefined) e.textContent = txt;
+  (parent || svgZ).appendChild(e); return e;
+}
+// Curva ilustrativa: zeta(pH) = -Amax * fi * tanh(0.9*(pH - pI))
+function zetaModel(pH, pI, fi){ return -60 * fi * Math.tanh(0.9 * (pH - pI)); }
+const ZX = {min:2, max:9}, ZY = {min:-60, max:60};
+const PLOT = {x0:70, y0:20, w:540, h:280};
+const px = pH => PLOT.x0 + (pH - ZX.min)/(ZX.max - ZX.min) * PLOT.w;
+const py = z  => PLOT.y0 + (ZY.max - z)/(ZY.max - ZY.min) * PLOT.h;
+
+function dibujarZeta(){
+  const pH = parseFloat(document.getElementById('sPH').value);
+  const pI = parseFloat(document.getElementById('sPI').value);
+  const fi = parseFloat(document.getElementById('sFI').value);
+  document.getElementById('vPH').textContent = pH.toFixed(1);
+  document.getElementById('vPI').textContent = pI.toFixed(1);
+  svgZ.innerHTML = '';
+  el('rect', {width:640, height:360, fill:'#FFFFFF'});
+  // zona inestable |z|<20
+  el('rect', {x:PLOT.x0, y:py(20), width:PLOT.w, height:py(-20)-py(20), fill:'#EDEBE4'});
+  el('text', {x:PLOT.x0+PLOT.w-8, y:py(0)-6, 'text-anchor':'end', 'font-size':12, fill:'#6B7280'}, svgZ, 'zona de baja repulsión (|ζ| < 20 mV)');
+  // ejes y rejilla
+  [-60,-40,-20,0,20,40,60].forEach(z=>{
+    el('line', {x1:PLOT.x0, y1:py(z), x2:PLOT.x0+PLOT.w, y2:py(z), stroke: z===0 ? '#9AA5B1' : '#E7E5DE', 'stroke-width': z===0?1.5:1});
+    el('text', {x:PLOT.x0-8, y:py(z)+4, 'text-anchor':'end', 'font-size':12, fill:'#2B2B2B'}, svgZ, z);
+  });
+  for(let p=2; p<=9; p++){
+    el('line', {x1:px(p), y1:PLOT.y0, x2:px(p), y2:PLOT.y0+PLOT.h, stroke:'#F0EEE7'});
+    el('text', {x:px(p), y:PLOT.y0+PLOT.h+18, 'text-anchor':'middle', 'font-size':12, fill:'#2B2B2B'}, svgZ, p);
+  }
+  el('text', {x:PLOT.x0+PLOT.w/2, y:352, 'text-anchor':'middle', 'font-size':13, fill:'#1E3A5F', 'font-weight':'bold'}, svgZ, 'pH');
+  el('text', {x:16, y:PLOT.y0+PLOT.h/2, 'font-size':13, fill:'#1E3A5F', 'font-weight':'bold', transform:`rotate(-90 16 ${PLOT.y0+PLOT.h/2})`, 'text-anchor':'middle'}, svgZ, 'ζ (mV)');
+  // curva
+  let d = '';
+  for(let p=ZX.min; p<=ZX.max+0.001; p+=0.05){
+    d += (d ? ' L' : 'M') + px(p).toFixed(1) + ',' + py(zetaModel(p,pI,fi)).toFixed(1);
+  }
+  el('path', {d, fill:'none', stroke:'#1E3A5F', 'stroke-width':3});
+  // pI
+  el('line', {x1:px(pI), y1:PLOT.y0, x2:px(pI), y2:PLOT.y0+PLOT.h, stroke:'#C9A227', 'stroke-width':2, 'stroke-dasharray':'6 4'});
+  el('text', {x:px(pI), y:PLOT.y0+12, 'text-anchor':'middle', 'font-size':12, fill:'#8A6D10', 'font-weight':'bold'}, svgZ, 'pI = ' + pI.toFixed(1));
+  // punto actual
+  const z = zetaModel(pH, pI, fi);
+  el('circle', {cx:px(pH), cy:py(z), r:8, fill:'#C9A227', stroke:'#1E3A5F', 'stroke-width':2.5});
+  // lectura
+  const abs = Math.abs(z);
+  let estado, clase;
+  if(abs < 20){ estado = 'floculación probable: repulsión electrostática insuficiente'; clase = 'estado-inestable'; }
+  else if(abs < 28){ estado = 'estabilidad límite'; clase = 'estado-limite'; }
+  else { estado = 'repulsión electrostática apreciable'; clase = 'estado-estable'; }
+  document.getElementById('lecturaZeta').innerHTML =
+    'Lectura: ζ ≈ <strong>' + z.toFixed(0) + ' mV</strong> a pH ' + pH.toFixed(1) +
+    ' &nbsp;<span class="leyenda-estado ' + clase + '">' + estado + '</span>' +
+    '<br><span class="cita">Esquema ilustrativo (no son datos experimentales). Recuerda: la repulsión crece con ζ², y la sal reduce la magnitud medida de ζ y el alcance de la repulsión.</span>';
+}
+['sPH','sPI','sFI'].forEach(id => document.getElementById(id).addEventListener('input', dibujarZeta));
+dibujarZeta();
+
+/* ================= SIM 2: doble capa ================= */
+const svgC = document.getElementById('grafCapa');
+const SALES = [
+  {c:'0.1 mM', nm:30, r:95, txt:'Doble capa: 30 nm — repulsión de largo alcance', clase:'estado-estable', gap:250},
+  {c:'1 mM',   nm:10, r:62, txt:'Doble capa: 10 nm — repulsión de alcance medio', clase:'estado-estable', gap:170},
+  {c:'10 mM',  nm:3,  r:44, txt:'Doble capa: 3 nm — repulsión de corto alcance', clase:'estado-limite', gap:105},
+  {c:'30 mM',  nm:2,  r:38, txt:'Doble capa: 2 nm — las partículas pueden agregarse', clase:'estado-inestable', gap:70}
+];
+function dibujarCapa(){
+  const i = parseInt(document.getElementById('sSal').value);
+  const s = SALES[i];
+  document.getElementById('vSal').textContent = s.c;
+  const et = document.getElementById('vEspesor');
+  et.textContent = s.txt; et.className = 'leyenda-estado ' + s.clase;
+  svgC.innerHTML = '';
+  const mk = (t,a,x)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(x!==undefined)e.textContent=x;svgC.appendChild(e);return e;};
+  mk('rect',{width:640,height:260,fill:'#FFFFFF'});
+  const cy=130, cx1=320-s.gap/2, cx2=320+s.gap/2;
+  [[cx1],[cx2]].forEach(([cx])=>{
+    mk('circle',{cx,cy,r:s.r,fill:'#C9A227',opacity:.22});
+    mk('circle',{cx,cy,r:(30+s.r)/1.8,fill:'#C9A227',opacity:.25});
+    mk('circle',{cx,cy,r:30,fill:'#1E3A5F'});
+  });
+  // etiquetas
+  mk('text',{x:320,y:30,'text-anchor':'middle','font-size':14,fill:'#1E3A5F','font-weight':'bold'},'NaCl ' + s.c + '  →  1/κ = ' + s.nm + ' nm');
+  if(i===3){
+    mk('text',{x:320,y:238,'text-anchor':'middle','font-size':13,fill:'#B3402A','font-weight':'bold'},'Repulsión apantallada: dominan las fuerzas de van der Waals → agregación');
+  } else {
+    mk('line',{x1:cx1+30,y1:cy,x2:cx2-30,y2:cy,stroke:'#9AA5B1','stroke-width':1.5,'stroke-dasharray':'4 4'});
+    mk('text',{x:320,y:238,'text-anchor':'middle','font-size':13,fill:'#2B2B2B'},'Las capas difusas (halos dorados) se traslapan antes del contacto y generan repulsión');
+  }
+}
+document.getElementById('sSal').addEventListener('input', dibujarCapa);
+dibujarCapa();
+
+/* ================= SIM 3: estérica ================= */
+const svgE = document.getElementById('grafEst');
+let animE = null;
+function pelos(mk, cx, cy, r, n, lado){
+  for(let k=0;k<n;k++){
+    const a = (lado==='der' ? -60+120*k/(n-1) : 120+120*k/(n-1)) * Math.PI/180;
+    const x1=cx+Math.cos(a)*r, y1=cy+Math.sin(a)*r;
+    const x2=cx+Math.cos(a)*(r+22), y2=cy+Math.sin(a)*(r+22);
+    mk('path',{d:`M${x1},${y1} Q${(x1+x2)/2+6},${(y1+y2)/2-6} ${x2},${y2}`,stroke:'#C9A227','stroke-width':2.4,fill:'none','stroke-linecap':'round'});
+  }
+}
+function dibujarEst(gap, resultado){
+  svgE.innerHTML = '';
+  const mk = (t,a,x)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(x!==undefined)e.textContent=x;svgE.appendChild(e);return e;};
+  mk('rect',{width:640,height:240,fill:'#FFFFFF'});
+  const cob = document.getElementById('sCob').value;
+  const cy=115, cx1=320-gap/2, cx2=320+gap/2, r=42;
+  mk('circle',{cx:cx1,cy,r,fill:'#1E3A5F'});
+  mk('circle',{cx:cx2,cy,r,fill:'#1E3A5F'});
+  if(cob==='alta'){ pelos(mk,cx1,cy,r,9,'todo'); pelos(mk,cx1,cy,r,9,'der'); pelos(mk,cx2,cy,r,9,'todo'); pelos(mk,cx2,cy,r,9,'der'); }
+  else {
+    // cobertura parcial: pocas cadenas
+    mk('path',{d:`M${cx1+r},${cy-14} Q${(cx1+cx2)/2},${cy-52} ${cx2-r+4},${cy-10}`,stroke:'#C9A227','stroke-width':3,fill:'none','stroke-linecap':'round'});
+    mk('path',{d:`M${cx1-r+6},${cy+18} q-26,10 -30,30`,stroke:'#C9A227','stroke-width':2.4,fill:'none','stroke-linecap':'round'});
+    mk('path',{d:`M${cx2+r-6},${cy+18} q26,10 30,30`,stroke:'#C9A227','stroke-width':2.4,fill:'none','stroke-linecap':'round'});
+  }
+  if(resultado){
+    mk('text',{x:320,y:220,'text-anchor':'middle','font-size':14,'font-weight':'bold', fill: resultado.ok ? '#2E7D32' : '#B3402A'}, resultado.msg);
+  } else {
+    mk('text',{x:320,y:220,'text-anchor':'middle','font-size':13,fill:'#6B7280'},'Presiona "Acercar partículas"');
+  }
+}
+function actualizarCob(){
+  const cob = document.getElementById('sCob').value;
+  const et = document.getElementById('vCob');
+  if(cob==='alta'){ et.textContent='Capas completas: repulsión estérica'; et.className='leyenda-estado estado-estable'; }
+  else { et.textContent='Cobertura parcial: riesgo de puenteo'; et.className='leyenda-estado estado-inestable'; }
+  if(animE) clearInterval(animE);
+  dibujarEst(260, null);
+}
+document.getElementById('sCob').addEventListener('change', actualizarCob);
+document.getElementById('btnChoque').addEventListener('click', ()=>{
+  if(animE) clearInterval(animE);
+  const cob = document.getElementById('sCob').value;
+  const minGap = cob==='alta' ? 132 : 84; // con capas completas no llegan a contacto
+  let gap = 260, fase = 'in';
+  animE = setInterval(()=>{
+    if(fase==='in'){ gap -= 6; if(gap<=minGap){ fase = cob==='alta' ? 'out' : 'fin'; } }
+    else if(fase==='out'){ gap += 4; if(gap>=200){ clearInterval(animE); dibujarEst(200,{ok:true,msg:'Las capas se comprimen y rebotan: dispersión ESTABLE'}); return; } }
+    if(fase==='fin'){ clearInterval(animE); dibujarEst(minGap,{ok:false,msg:'La cadena puentea ambas partículas: FLOCULACIÓN por puenteo'}); return; }
+    dibujarEst(gap, null);
+  }, 40);
+});
+actualizarCob();
+
+/* ================= QUIZ ================= */
+const PREGUNTAS = [
+ {q:'El potencial zeta se define como el potencial eléctrico medido en:',
+  op:['La superficie misma de la partícula','El plano de corte (frontera hidrodinámica)','El seno de la fase continua','El centro de la partícula'], c:1,
+  r:'El ζ se mide en el plano de corte, la frontera entre los iones que se mueven con la partícula y el líquido que queda atrás; se toma como aproximación del potencial de Stern (Cosgrove, 2010, pp. 36–37).'},
+ {q:'Si el potencial zeta de una dispersión se duplica, la barrera de energía repulsiva (Vmax) aproximadamente:',
+  op:['Se duplica','Se cuadruplica','No cambia','Se reduce a la mitad'], c:1,
+  r:'La repulsión electrostática depende del cuadrado del potencial: duplicar ζ cuadruplica Vmax (Cosgrove, 2010, p. 53).'},
+ {q:'Una mayonesa estabilizada con proteínas de yema flocula con mayor facilidad cuando el pH del medio:',
+  op:['Se aleja del punto isoeléctrico de las proteínas','Se acerca al punto isoeléctrico de las proteínas','Es muy ácido, sin importar el pI','Es muy alcalino, sin importar el pI'], c:1,
+  r:'En el punto isoeléctrico la carga neta ≈ 0, el ζ colapsa y desaparece la repulsión electrostática: el sistema flocula.'},
+ {q:'Al aumentar la concentración de NaCl de 0.1 mM a 30 mM, el espesor de la doble capa eléctrica pasa aproximadamente de:',
+  op:['2 nm a 30 nm','30 nm a 2 nm','30 nm a 15 nm','No cambia con la sal'], c:1,
+  r:'La sal comprime la doble capa: de 30 nm (0.1 mM) a 2 nm (30 mM) según Cosgrove (2010, p. 48, Tabla 3.2). La repulsión pierde alcance.'},
+ {q:'Según la regla de Schulze–Hardy, ¿cuál ion coagula una dispersión con carga negativa a la MENOR concentración?',
+  op:['Na⁺','K⁺','Ca²⁺','Al³⁺'], c:3,
+  r:'La concentración crítica de coagulación cae drásticamente al aumentar la valencia del contraión: Al³⁺ ≪ Ca²⁺ ≪ Na⁺/K⁺ (Cosgrove, 2010, pp. 52–53).'},
+ {q:'Para que un polímero adsorbido dé estabilización estérica eficaz se requiere, entre otras condiciones:',
+  op:['Cobertura superficial baja y adsorción débil','Mal disolvente para las cadenas','Alta cobertura, adsorción fuerte y buen disolvente para las cadenas','Gran exceso de polímero libre en el medio'], c:2,
+  r:'Cosgrove (2010, pp. 186–187): alta cobertura, adsorción fuerte, buen disolvente y baja concentración de polímero libre. Lo contrario produce puenteo o agotamiento.'},
+ {q:'Se agrega una cantidad muy pequeña de un polímero de alto peso molecular a una dispersión y ésta flocula rápidamente. El mecanismo más probable es:',
+  op:['Floculación por agotamiento (depletion)','Floculación por puenteo (bridging)','Compresión de la doble capa','Maduración de Ostwald'], c:1,
+  r:'Con cobertura baja, una misma cadena se adsorbe sobre dos partículas y las une: floculación por puenteo. El agotamiento, en cambio, requiere exceso de polímero LIBRE no adsorbido.'},
+ {q:'¿Cuál mecanismo de estabilización sigue funcionando en un medio con alta concentración de sal (por ejemplo, un aderezo salado)?',
+  op:['Electrostático, porque la sal aumenta la carga','Estérico, porque no depende de la carga superficial','Ninguno: toda dispersión salada se separa de inmediato','Ambos por igual: la sal no afecta a ninguno'], c:1,
+  r:'La sal apantalla la repulsión electrostática, pero la repulsión estérica depende de la capa polimérica y del disolvente, no de la carga: por eso domina en muchos alimentos.'}
+];
+
+const form = document.getElementById('formQuiz');
+let PREGUNTAS_SHUFFLED = [];
+function construirQuiz(){
+  form.innerHTML = '';
+  /* Barajar opciones de cada pregunta preservando la respuesta correcta */
+  PREGUNTAS_SHUFFLED = PREGUNTAS.map(p => {
+    const correctText = p.op[p.c];
+    const op = p.op.slice();
+    for(let i=op.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[op[i],op[j]]=[op[j],op[i]];}
+    return { q:p.q, op:op, c:op.indexOf(correctText), r:p.r };
+  });
+  /* Barajar orden de preguntas */
+  for(let i=PREGUNTAS_SHUFFLED.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[PREGUNTAS_SHUFFLED[i],PREGUNTAS_SHUFFLED[j]]=[PREGUNTAS_SHUFFLED[j],PREGUNTAS_SHUFFLED[i]];}
+  PREGUNTAS_SHUFFLED.forEach((p,i)=>{
+    const div = document.createElement('div'); div.className='pregunta'; div.id='preg'+i;
+    const qClean = p.q.replace(/^\s*\d+\.\s*/,'');
+    let html = '<h4>' + (i+1) + '. ' + qClean + '</h4>';
+    p.op.forEach((o,j)=>{
+      html += '<label class="opcion"><input type="radio" name="q'+i+'" value="'+j+'">'+o+'</label>';
+    });
+    html += '<div class="retro" id="retro'+i+'"></div>';
+    div.innerHTML = html; form.appendChild(div);
+  });
+  document.getElementById('resultadoQuiz').style.display='none';
+  document.getElementById('btnCalificar').style.display='inline-block';
+}
+construirQuiz();
+let ultimoPuntaje = null;
+
+document.getElementById('btnCalificar').addEventListener('click', ()=>{
+  let correctas = 0, contestadas = 0;
+  PREGUNTAS_SHUFFLED.forEach((p,i)=>{
+    const sel = form.querySelector('input[name="q'+i+'"]:checked');
+    const retro = document.getElementById('retro'+i);
+    const labels = document.getElementById('preg'+i).querySelectorAll('.opcion');
+    labels.forEach(l=>l.classList.remove('correcta','incorrecta'));
+    if(!sel){ retro.className='retro mal'; retro.innerHTML='<strong>Sin responder.</strong> ' + p.r; return; }
+    contestadas++;
+    const v = parseInt(sel.value);
+    labels[p.c].classList.add('correcta');
+    if(v===p.c){ correctas++; retro.className='retro bien'; retro.innerHTML='<strong>✔ Correcto.</strong> ' + p.r; }
+    else { labels[v].classList.add('incorrecta'); retro.className='retro mal'; retro.innerHTML='<strong>✘ Incorrecto.</strong> ' + p.r; }
+  });
+  ultimoPuntaje = {correctas, total:PREGUNTAS_SHUFFLED.length};
+  const res = document.getElementById('resultadoQuiz');
+  res.style.display='block';
+  document.getElementById('txtPuntaje').textContent = correctas + ' / ' + PREGUNTAS.length;
+  const pct = correctas/PREGUNTAS.length;
+  document.getElementById('txtMensaje').textContent =
+    pct===1 ? '¡Excelente! Dominas los tres mecanismos de estabilidad.' :
+    pct>=0.75 ? 'Muy bien. Revisa la retroalimentación de las preguntas falladas antes de la práctica.' :
+    pct>=0.5 ? 'Vas a la mitad: repasa las secciones de potencial zeta y estabilización estérica.' :
+    'Te recomendamos releer las tres secciones y volver a intentar el cuestionario.';
+  res.scrollIntoView({behavior:'smooth', block:'center'});
+});
+
+document.getElementById('btnReiniciar').addEventListener('click', construirQuiz);
+document.getElementById('btnCorreo').addEventListener('click', ()=>{
+  if(!ultimoPuntaje) return;
+  const cuerpo = encodeURIComponent(
+    'Resultados de la autoevaluación — Estabilidad de Sistemas Dispersos en Alimentos (LCA 430, FCB-UANL)\n\n' +
+    'Puntaje: ' + ultimoPuntaje.correctas + ' de ' + ultimoPuntaje.total + '\n' +
+    'Fecha: ' + new Date().toLocaleString('es-MX') + '\n\n' +
+    'Profesor: Dr. Juan Gabriel Báez González');
+  window.location.href = 'mailto:?subject=' + encodeURIComponent('Autoevaluación — Sistemas Dispersos (LCA 430)') + '&body=' + cuerpo;
+});
+
+/* ================= NAVEGACIÓN ================= */
+const enlaces = document.querySelectorAll('nav#menu a');
+const secciones = [...document.querySelectorAll('section.bloque')];
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      enlaces.forEach(a=>a.classList.toggle('activo', a.getAttribute('href')==='#'+en.target.id));
+    }
+  });
+},{rootMargin:'-40% 0px -55% 0px'});
+secciones.forEach(s=>obs.observe(s));
+
+const btnTop = document.getElementById('btnTop');
+window.addEventListener('scroll', ()=>{ btnTop.style.display = window.scrollY>600 ? 'block' : 'none'; });
+</script>
+</body>
+</html>
